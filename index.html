@@ -1152,7 +1152,7 @@ textarea.in { resize: vertical; }
     }
   };
 
-  // Canción: busca en el catálogo público de iTunes mientras escribes
+  // Canción: busca en Deezer (a través del Worker) mientras escribes
   const cancion = $('cancion'), lista = $('canciones');
   let busqueda, pedido;
   cancion.addEventListener('input', e => {
@@ -1165,21 +1165,21 @@ textarea.in { resize: vertical; }
     busqueda = setTimeout(async () => {
       pedido = new AbortController();
       try {
-        const r = await fetch(`https://itunes.apple.com/search?entity=song&country=es&limit=6&term=${encodeURIComponent(q)}`, { signal: pedido.signal });
-        const { results } = await r.json();
+        const r = await fetch(`${API}/canciones?q=${encodeURIComponent(q)}`, { signal: pedido.signal });
+        const results = await r.json();
         lista.replaceChildren(...results.map(t => {
           const li = document.createElement('li'), b = document.createElement('button');
           b.type = 'button';
-          const img = Object.assign(new Image(40, 40), { src: t.artworkUrl60, alt: '', loading: 'lazy' });
+          const img = Object.assign(new Image(40, 40), { src: t.portada, alt: '', loading: 'lazy' });
           const titulo = document.createElement('b'), artista = document.createElement('span');
-          titulo.textContent = t.trackName;
-          artista.textContent = t.artistName;
+          titulo.textContent = t.titulo;
+          artista.textContent = t.artista;
           const textos = document.createElement('div');
           textos.append(titulo, artista);
           b.append(img, textos);
           b.addEventListener('click', () => {
-            cancion.value = `${t.trackName} – ${t.artistName}`;
-            $('cancion-enlace').value = t.trackViewUrl || '';
+            cancion.value = `${t.titulo} – ${t.artista}`;
+            $('cancion-enlace').value = t.enlace || '';
             lista.hidden = true;
             cancion.dispatchEvent(new Event('input', { bubbles: true }));
             $('rsvp-sig').focus({ preventScroll: true });

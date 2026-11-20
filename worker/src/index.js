@@ -1,5 +1,5 @@
 // Confirmaciones de la boda: la web guarda y edita su respuesta, los novios la descargan para Excel.
-const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' };
+const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' };
 const json = (datos, status = 200) => Response.json(datos, { status, headers: CORS });
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const texto = (v, max = 300) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -29,11 +29,22 @@ async function guardar(request, env) {
     si && Array.isArray(d.menus) ? d.menus.filter(m => MENUS.includes(m)).join(', ') : '',
     si ? texto(d.alergias, 500) : '',
     si ? texto(d.cancion, 200) : '',
-    si && enlace.startsWith('https://music.apple.com/') ? enlace : '',
+    si && /^https:\/\/(www\.deezer\.com|music\.apple\.com)\//.test(enlace) ? enlace : '',
     ahora
   ).run();
   if (!r.meta.changes) return json({ error: 'Esta respuesta no es tuya' }, 403);
   return json({ ok: true });
+}
+
+// Deezer encuentra mucho mejor la música en español que iTunes, pero no deja llamarlo desde el navegador
+async function canciones(url) {
+  const q = texto(url.searchParams.get('q'), 100);
+  if (q.length < 2) return json([]);
+  const r = await fetch(`https://api.deezer.com/search?limit=6&q=${encodeURIComponent(q)}`, { cf: { cacheTtl: 86400, cacheEverything: true } });
+  if (!r.ok) return json([], 502);
+  const { data = [] } = await r.json();
+  return Response.json(data.map(t => ({ titulo: t.title, artista: t.artist?.name, portada: t.album?.cover_small, enlace: t.link })),
+    { headers: { ...CORS, 'Cache-Control': 'public, max-age=86400' } });
 }
 
 // CSV con ; y BOM para que Excel en español lo abra con acentos y columnas bien
@@ -56,6 +67,7 @@ export default {
     const url = new URL(request.url);
     if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
     if (url.pathname === '/rsvp' && request.method === 'POST') return guardar(request, env);
+    if (url.pathname === '/canciones' && request.method === 'GET') return canciones(url);
     if (url.pathname === '/respuestas.csv' && request.method === 'GET') return exportar(url, env);
     return json({ error: 'No encontrado' }, 404);
   },
