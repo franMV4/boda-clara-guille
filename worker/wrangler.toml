@@ -1,0 +1,8 @@
+name = "boda-clara-guille"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "boda-clara-guille"
+database_id = "c2095e1e-4b11-47d7-8b78-5ac7fb95817d"

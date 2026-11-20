@@ -100,6 +100,12 @@ textarea.in { resize: vertical; }
 .oculto { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .aviso { padding: 1.6rem; border-radius: .8rem; background: var(--fondo); line-height: 1.5; color: var(--tinta); }
 .error { min-height: 1.4em; margin-top: -1rem; font-size: max(13px, 1.6rem); font-weight: 600; line-height: 1.4; color: var(--tinta); }
+.canciones { margin: .6rem 0 0; padding: 0; list-style: none; border: 1px solid var(--borde); border-radius: .8rem; overflow: hidden; text-align: left; }
+.canciones button { display: flex; align-items: center; gap: 1rem; width: 100%; min-height: 48px; padding: .6rem 1rem; border: 0; border-top: 1px solid var(--borde); background: var(--papel); color: var(--tinta); font: 500 max(14px, 1.5rem)/1.3 var(--sans); text-align: left; cursor: pointer; }
+.canciones li:first-child button { border-top: 0; }
+.canciones button:is(:hover, :focus-visible) { background: var(--fondo); }
+.canciones img { flex: none; width: 40px; height: 40px; border-radius: .4rem; }
+.canciones span { display: block; font-weight: 400; color: var(--gris); }
 .pista { margin-top: 1rem; font-size: max(13px, 1.6rem); line-height: 1.4; color: var(--gris); }
 .miniaturas { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; }
 .miniaturas > * { display: grid; place-items: center; box-sizing: border-box; width: 100%; aspect-ratio: 1; border-radius: .6rem; background: var(--fondo); object-fit: cover; font-size: max(12px, 1.4rem); }
@@ -724,7 +730,6 @@ textarea.in { resize: vertical; }
         <p class="l" style="--mt:2">¡Queremos que<br>nos acompañes!</p>
         <h2 class="s" style="--mt:2">Confirma<br>tu asistencia</h2>
       </div>
-      <!-- ponytail: formulario de ejemplo, al enviar no se guarda nada hasta que exista el backend -->
       <form id="rsvp" class="form" novalidate style="--mt:3">
         <div class="form" id="rsvp-preguntas">
           <div>
@@ -895,7 +900,9 @@ textarea.in { resize: vertical; }
             </div>
             <div class="paso solo-si" tabindex="-1" data-escena="baile" hidden>
               <label class="et" for="cancion">¿Alguna canción especial?</label>
-              <input class="in" id="cancion" name="cancion" autocomplete="off" placeholder="Canción y artista">
+              <input class="in" id="cancion" name="cancion" autocomplete="off" placeholder="Busca canción o artista" aria-controls="canciones">
+              <input type="hidden" id="cancion-enlace">
+              <ul class="canciones" id="canciones" aria-label="Canciones encontradas" hidden></ul>
             </div>
           </div>
           <p class="error" id="rsvp-error" role="alert"></p>
@@ -1067,8 +1074,8 @@ textarea.in { resize: vertical; }
   const agradecer = () => {
     const nombre = $('nombre').value.trim().split(/\s+/)[0];
     avisar($('rsvp-aviso'), ($('asiste-si').checked
-      ? `¡Gracias, ${nombre}! Nos vemos en la boda. `
-      : `Gracias por avisar, ${nombre}. Te echaremos de menos. `) + EJEMPLO);
+      ? `¡Gracias, ${nombre}! Nos vemos en la boda.`
+      : `Gracias por avisar, ${nombre}. Te echaremos de menos.`) + ' Tu respuesta está guardada; si cambia algo, puedes cambiarla aquí.');
     $('rsvp-preguntas').hidden = true;
     $('rsvp-fin').hidden = false;
     $('flotante').hidden = true;
@@ -1105,9 +1112,89 @@ textarea.in { resize: vertical; }
     }
     const lista = enCurso(), siguiente = lista[lista.indexOf(paso) + 1];
     if (siguiente) { mostrar(siguiente); guardarBorrador(); return; }
-    guardarBorrador(true);
-    agradecer();
+    enviar();
   });
+
+  // Cada invitado tiene un id y una clave en este dispositivo: con ellos puede volver a cambiar su respuesta
+  const API = 'https://boda-clara-guille.franmunozvillanova.workers.dev';
+  const nuevoId = () => crypto.randomUUID ? crypto.randomUUID()
+    : '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+  let enviando = false;
+  const enviar = async () => {
+    if (enviando) return;
+    enviando = true;
+    const boton = $('rsvp-sig').firstElementChild;
+    boton.textContent = 'Enviando…';
+    let yo = leer('boda-rsvp-id');
+    if (!yo || !yo.id) { yo = { id: nuevoId(), token: nuevoId() }; guardar('boda-rsvp-id', yo); }
+    const si = $('asiste-si').checked;
+    try {
+      const r = await fetch(API + '/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...yo,
+          nombre: $('nombre').value, asiste: si ? 'si' : 'no',
+          acompanante: $('acompanante').value,
+          autobus_ida: $('autobus-ida').checked, autobus_vuelta: $('autobus-vuelta').checked,
+          menus: [...rsvp.querySelectorAll('[name="menu"]:checked')].map(c => c.value),
+          alergias: $('alergias').value, cancion: $('cancion').value, cancion_enlace: $('cancion-enlace').value,
+        }),
+      });
+      if (!r.ok) throw new Error(r.status);
+      guardarBorrador(true);
+      agradecer();
+    } catch {
+      fallo('No se ha podido enviar. Revisa la conexión e inténtalo otra vez.');
+      boton.textContent = 'Enviar confirmación';
+    } finally {
+      enviando = false;
+    }
+  };
+
+  // Canción: busca en el catálogo público de iTunes mientras escribes
+  const cancion = $('cancion'), lista = $('canciones');
+  let busqueda, pedido;
+  cancion.addEventListener('input', e => {
+    if (!e.isTrusted) return;
+    $('cancion-enlace').value = '';
+    clearTimeout(busqueda);
+    pedido?.abort();
+    const q = cancion.value.trim();
+    if (q.length < 2) { lista.hidden = true; return; }
+    busqueda = setTimeout(async () => {
+      pedido = new AbortController();
+      try {
+        const r = await fetch(`https://itunes.apple.com/search?entity=song&country=es&limit=6&term=${encodeURIComponent(q)}`, { signal: pedido.signal });
+        const { results } = await r.json();
+        lista.replaceChildren(...results.map(t => {
+          const li = document.createElement('li'), b = document.createElement('button');
+          b.type = 'button';
+          const img = Object.assign(new Image(40, 40), { src: t.artworkUrl60, alt: '', loading: 'lazy' });
+          const titulo = document.createElement('b'), artista = document.createElement('span');
+          titulo.textContent = t.trackName;
+          artista.textContent = t.artistName;
+          const textos = document.createElement('div');
+          textos.append(titulo, artista);
+          b.append(img, textos);
+          b.addEventListener('click', () => {
+            cancion.value = `${t.trackName} – ${t.artistName}`;
+            $('cancion-enlace').value = t.trackViewUrl || '';
+            lista.hidden = true;
+            cancion.dispatchEvent(new Event('input', { bubbles: true }));
+            $('rsvp-sig').focus({ preventScroll: true });
+          });
+          li.append(b);
+          return li;
+        }));
+        lista.hidden = !results.length;
+      } catch {
+        // Sin conexión o sin resultados: se puede escribir la canción a mano igualmente
+        lista.hidden = true;
+      }
+    }, 350);
+  });
+  cancion.addEventListener('keydown', e => { if (e.key === 'Escape') lista.hidden = true; });
 
   $('rsvp-cambiar').addEventListener('click', () => {
     $('rsvp-fin').hidden = true;
@@ -1127,7 +1214,8 @@ textarea.in { resize: vertical; }
       else c.value = valor;
     });
     if (pasos[borrador.paso]) mostrar(pasos[borrador.paso], false, false);
-    if (borrador.hecho) agradecer();
+    // Solo cuenta como enviada si de verdad llegó al servidor (las pruebas de la versión de ejemplo no)
+    if (borrador.hecho && leer('boda-rsvp-id')) agradecer();
   } else {
     mostrar(pasos[0], false, false);
   }
