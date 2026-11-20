@@ -127,6 +127,24 @@ textarea.in { resize: vertical; }
 .pareja { display: flex; align-items: flex-end; justify-content: center; gap: 2rem; }
 .pareja .ic { margin: 0; }
 
+/* Escenas de la confirmación: un dibujo por pregunta; la cámara entra en el siguiente */
+.escena { display: block; width: 100%; height: auto; aspect-ratio: 400 / 220; margin-top: 1.2rem; overflow: hidden; stroke-width: 2.6; }
+.escena [data-escena] { transform-box: view-box; }
+.escena [data-si] :is(path, circle) { stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: 0; transition: stroke-dashoffset 800ms cubic-bezier(.4, 0, .2, 1), opacity 200ms; }
+.escena [data-si].on :is(path, circle) { stroke-dashoffset: 0; opacity: 1; }
+.escena .garabato { stroke-width: 2; stroke-dasharray: 1 1; stroke-dashoffset: 1; transition: stroke-dashoffset 400ms ease-out; }
+.escena text { stroke: none; fill: var(--tinta); font: 400 24px var(--script); }
+.escena .hoja { transform-box: view-box; transition: transform 750ms cubic-bezier(.65, 0, .35, 1); }
+.escena .hoja-izq { transform-origin: 146px 210px; }
+.escena .hoja-der { transform-origin: 254px 210px; }
+.escena .abierta .hoja { transform: scaleX(.14); }
+.escena .notas.on { animation: flotar 2.4s ease-in-out infinite; }
+@keyframes flotar { 50% { translate: 0 -6px; } }
+@media (prefers-reduced-motion: reduce) {
+  .escena [data-si] :is(path, circle), .escena .garabato, .escena .hoja { transition: none; }
+  .escena .notas.on { animation: none; }
+}
+
 /* La confirmación: el único momento en azul */
 .confirma { --tinta: #ffffff; --papel: #3f5a7b; --gris: #dde4ed; --gris-fuerte: #ffffff; --borde: #a9bacf; --fondo: #4c688c; margin-block: 8rem; background: #3f5a7b; scroll-margin-top: 0; }
 .confirma .interior { position: relative; display: flow-root; }
@@ -716,24 +734,143 @@ textarea.in { resize: vertical; }
               <path id="hilo" pathLength="1" d="M3 7C40-1 70 15 110 7S180-1 220 7S290 15 330 7S390 1 417 7"/>
             </svg>
           </div>
+          <svg class="escena" id="escena" viewBox="0 0 400 220" aria-hidden="true">
+            <!-- 1. Fuera de la iglesia -->
+            <g data-escena="fuera" data-foco="224 186" hidden>
+              <path d="M4 204C120 201 280 206 396 203"/>
+              <use href="#iglesia-sa" transform="translate(152 26) scale(.5)"/>
+              <path d="M38 202C38 186 39 172 38 160M38 160C20 160 16 138 28 130C24 114 46 106 54 118C68 116 72 136 62 144C68 158 52 166 38 160Z"/>
+              <path d="M332 202C332 194 332 188 332 182M332 182C320 152 324 112 332 94C340 112 344 152 332 182Z"/>
+              <path d="M54 30C61 30 66 35 66 42C66 49 61 54 54 54C47 54 42 49 42 42C42 35 47 30 54 30ZM54 18V24M54 60V66M30 42H36M72 42H78M37 25L41 29M67 55L71 59M71 25L67 29M41 55L37 59"/>
+              <path d="M286 44C290 40 294 40 296 44C298 40 302 40 306 44M314 30C317 27 320 27 322 30C324 27 327 27 330 30"/>
+              <path d="M219 204C214 210 208 215 202 220M233 204C238 210 244 215 250 220"/>
+              <circle cx="122" cy="160" r="7"/>
+              <path d="M122 167C122 175 123 183 123 190M123 190C121 194 119 198 117 202M123 190C125 194 128 198 130 202M122 174C119 177 117 179 114 182M122 174C125 176 128 177 131 179"/>
+              <text data-texto="nombre" x="118" y="140" text-anchor="middle"></text>
+            </g>
+            <!-- 2. Ante la puerta -->
+            <g data-escena="puerta" data-foco="200 140" hidden>
+              <path d="M60 212C60 150 61 80 60 20M340 212C340 150 339 80 340 20"/>
+              <path d="M130 210V110C130 50 270 50 270 110V210M142 210V112C142 64 258 64 258 112V210"/>
+              <g data-si="asiste-si">
+                <path d="M200 96V124M186 100L192 124M214 100L208 124M176 112L186 126M224 112L214 126"/>
+                <path d="M168 210C176 200 188 196 200 196C212 196 224 200 232 210"/>
+              </g>
+              <path class="hoja hoja-izq" d="M146 210V112C146 86 170 70 199 68V210ZM156 120H190M156 170H190M190 146C192 146 193 148 193 150C193 152 192 154 190 154"/>
+              <path class="hoja hoja-der" d="M254 210V112C254 86 230 70 201 68V210ZM210 120H244M210 170H244M210 146C208 146 207 148 207 150C207 152 208 154 210 154"/>
+              <path d="M110 210C170 209 230 211 290 210M100 218C166 217 234 219 300 218"/>
+              <path d="M200 46C195 40 189 37 190 32C191 27 197 27 200 32C203 27 209 27 210 32C211 37 205 40 200 46Z"/>
+              <circle cx="92" cy="168" r="7"/>
+              <path d="M92 175C92 182 92 189 93 196M93 196C91 200 89 205 87 210M93 196C95 200 97 205 99 210M92 181C96 184 100 186 104 188M92 181C89 184 87 187 85 190"/>
+            </g>
+            <!-- 3. En un banco de la iglesia -->
+            <g data-escena="banco" data-foco="200 120" data-salida="lejos" hidden>
+              <path d="M20 74C60 22 140 22 180 74M220 74C260 22 340 22 380 74M20 74V212M380 74V212M180 74V128M220 74V128"/>
+              <path d="M170 128C190 127 210 129 230 128M176 128V144M224 128V144M170 144C190 143 210 145 230 144"/>
+              <path d="M200 92V116M193 99C198 99 202 99 207 99"/>
+              <path d="M190 144C186 168 182 192 178 218M210 144C214 168 218 192 222 218"/>
+              <path d="M84 134C110 133 140 135 168 134M84 146C110 145 140 147 168 146M232 134C260 133 290 135 316 134M232 146C260 145 290 147 316 146"/>
+              <path d="M36 160C80 158 130 158 172 160M36 188C80 187 130 189 172 188M42 188V214M166 188V214M40 160V188M168 160V188"/>
+              <path d="M228 160C270 158 320 158 364 160M228 188C270 187 320 189 364 188M234 188V214M358 188V214M232 160V188M360 160V188"/>
+              <circle cx="80" cy="132" r="9"/>
+              <path d="M66 159C68 147 92 147 94 159"/>
+              <g data-si="acompanante">
+                <circle cx="126" cy="132" r="9"/>
+                <path d="M112 159C114 147 138 147 140 159"/>
+                <path d="M103 130C99 125 94 123 95 119C96 115 101 115 103 119C105 115 110 115 111 119C112 123 107 125 103 130Z"/>
+              </g>
+              <text data-texto="acompanante" x="128" y="110" text-anchor="middle"></text>
+            </g>
+            <!-- 4. El autobús -->
+            <g data-escena="autobus" data-foco="267 176" hidden>
+              <path d="M4 206C130 204 270 207 396 205M30 214H58M90 214H118M150 214H178M210 214H238M270 214H298M330 214H358"/>
+              <path d="M30 204V124M50 204V124M26 124L40 102L54 124ZM40 102V92M36 96H44M36 150V136C36 132 44 132 44 136V150"/>
+              <path d="M112 192V136C112 128 118 122 126 122L282 122C294 122 300 130 302 140L310 168C312 176 312 186 310 192"/>
+              <path d="M112 192H136M168 192H230M262 192H310M112 168C170 166 230 168 308 168"/>
+              <circle cx="152" cy="194" r="15"/><circle cx="152" cy="194" r="5"/><circle cx="246" cy="194" r="15"/><circle cx="246" cy="194" r="5"/>
+              <path d="M124 132H160V156H124ZM168 132H204V156H168ZM212 132H248V156H212ZM258 132H290L298 156H258ZM280 162V188M298 162V188"/>
+              <g data-si="autobus-ida">
+                <path d="M88 30C95 30 100 35 100 42C100 49 95 54 88 54C81 54 76 49 76 42C76 35 81 30 88 30ZM88 18V24M88 60V66M64 42H70M106 42H112M71 25L75 29M101 55L105 59M105 25L101 29M75 55L71 59"/>
+                <path d="M150 98C180 94 210 94 240 98M232 92L242 98L232 104"/>
+              </g>
+              <g data-si="autobus-vuelta">
+                <path d="M346 24C332 28 330 52 346 56C338 50 338 32 346 24Z"/>
+                <path d="M312 30V38M308 34H316M368 60V66M365 63H371M300 64V68M298 66H302"/>
+                <path d="M250 110C220 106 190 106 160 110M168 104L158 110L168 116"/>
+              </g>
+            </g>
+            <!-- 5. La mesa del banquete -->
+            <g data-escena="menu" data-foco="200 140" hidden>
+              <path d="M30 156C130 152 270 152 370 156M30 156C34 176 32 194 36 214M370 156C366 176 368 194 364 214"/>
+              <path d="M36 214C60 206 84 218 108 210C132 218 156 206 180 214C204 206 228 218 252 210C276 218 300 206 324 214C340 208 352 216 364 214"/>
+              <path d="M140 144C140 130 260 130 260 144C260 158 140 158 140 144ZM162 144C162 136 238 136 238 144C238 152 162 152 162 144Z"/>
+              <path d="M118 122V152M112 122V132C112 138 124 138 124 132V122M282 122V152M282 122C290 126 290 138 282 142"/>
+              <path d="M312 104C310 118 314 128 320 132C326 128 330 118 328 104ZM320 132V148M312 150C317 149 323 149 328 150"/>
+              <g data-si="menu-celiaquia">
+                <path d="M110 78V40M110 50C104 48 102 42 106 38C110 42 110 48 110 50M110 50C116 48 118 42 114 38C110 42 110 48 110 50M110 64C104 62 102 56 106 52M110 64C116 62 118 56 114 52"/>
+                <path d="M110 38C121 38 130 47 130 58C130 69 121 78 110 78C99 78 90 69 90 58C90 47 99 38 110 38ZM96 72L124 44"/>
+              </g>
+              <g data-si="menu-embarazada">
+                <path d="M170 40C177 40 182 45 182 52C182 59 177 64 170 64C163 64 158 59 158 52C158 45 163 40 170 40ZM170 64V78M164 52C166 48 174 48 176 52"/>
+              </g>
+              <g data-si="menu-vegetariano">
+                <path d="M222 78C214 64 220 48 240 42C242 60 236 72 222 78ZM222 78C226 66 232 54 240 42"/>
+              </g>
+              <g data-si="menu-vegano">
+                <path d="M290 80V60M290 64C280 62 276 52 278 46C286 48 290 56 290 64M290 60C300 58 304 48 302 42C294 44 290 52 290 60"/>
+              </g>
+            </g>
+            <!-- 6. La libreta del camarero -->
+            <g data-escena="nota" data-foco="200 110" hidden>
+              <path d="M120 30H280V202H120Z"/>
+              <path d="M140 30C140 22 148 22 148 30M170 30C170 22 178 22 178 30M200 30C200 22 208 22 208 30M230 30C230 22 238 22 238 30M260 30C260 22 268 22 268 30"/>
+              <path d="M136 56H264M136 82H264M136 108H264M136 134H264M136 160H264M136 186H264"/>
+              <path d="M300 172L350 62M312 176L362 66M300 172L312 176M300 172L302 188L312 176M350 62C352 56 362 58 362 66"/>
+              <path class="garabato" d="M140 76C148 70 154 80 162 74S176 70 184 76S198 80 206 74S220 70 228 76S242 80 252 74"/>
+              <path class="garabato" d="M140 102C148 96 154 106 162 100S176 96 184 102S198 106 206 100S220 96 228 102S242 106 252 100"/>
+              <path class="garabato" d="M140 128C148 122 154 132 162 126S176 122 184 128S198 132 206 126"/>
+              <g data-si="alergias">
+                <path d="M60 128L86 80L112 128Z"/>
+                <path d="M86 96V112M86 120V120.5"/>
+              </g>
+            </g>
+            <!-- 7. La pista de baile -->
+            <g data-escena="baile" data-foco="200 120" hidden>
+              <path d="M200 0V30"/>
+              <circle cx="200" cy="50" r="20"/>
+              <path d="M182 42C194 46 206 46 218 42M182 58C194 54 206 54 218 58M200 30C192 40 192 60 200 70M200 30C208 40 208 60 200 70"/>
+              <path d="M166 34L160 30M234 34L240 30M170 70L164 76M230 70L236 76"/>
+              <path d="M20 204C140 202 260 206 380 204M100 204L80 220M200 204V220M300 204L320 220"/>
+              <circle cx="160" cy="120" r="9"/>
+              <path d="M160 129C158 145 160 160 162 172M162 172C158 182 155 191 152 200M162 172C165 182 168 191 170 200M160 138C174 134 188 130 200 128M160 140C155 135 150 131 146 128"/>
+              <circle cx="240" cy="116" r="9"/>
+              <path d="M232 112C226 124 228 134 224 142M240 125C238 140 238 150 236 158C228 174 224 188 220 200C232 201 246 201 258 200C254 188 248 174 244 158M239 134C226 130 212 128 200 128M241 136C246 132 250 128 254 124"/>
+              <g data-si="cancion" class="notas">
+                <path d="M80 104V76C88 78 92 82 94 86M80 104C80 98 70 98 70 104C70 110 80 110 80 104Z"/>
+                <path d="M314 96V70L334 66V92M314 96C314 90 304 90 304 96C304 102 314 102 314 96ZM334 92C334 86 324 86 324 92C324 98 334 98 334 92Z"/>
+                <path d="M110 62V44C116 46 118 48 120 52M110 62C110 58 104 58 104 62C104 66 110 66 110 62Z"/>
+              </g>
+              <text data-texto="cancion" x="100" y="28" text-anchor="middle"></text>
+            </g>
+          </svg>
           <div class="pasos">
-            <div class="paso" tabindex="-1" data-error="Escribe tu nombre para continuar">
+            <div class="paso" tabindex="-1" data-escena="fuera" data-error="Escribe tu nombre para continuar">
               <label class="et" for="nombre">¿Cómo te llamas?</label>
               <input class="in" id="nombre" name="nombre" autocomplete="name" placeholder="Nombre y apellidos" pattern=".*\S.*" required aria-describedby="rsvp-error">
             </div>
-            <fieldset class="paso" tabindex="-1" data-error="Elige una opción para continuar" hidden>
+            <fieldset class="paso" tabindex="-1" data-escena="puerta" data-error="Elige una opción para continuar" hidden>
               <legend class="et">¿Asistes a la boda?</legend>
               <div class="op">
                 <label><input type="radio" name="asiste" id="asiste-si" value="si" required>Sí, asisto</label>
                 <label><input type="radio" name="asiste" id="asiste-no" value="no">No podré ir</label>
               </div>
             </fieldset>
-            <div class="paso solo-si" id="paso-acompanante" tabindex="-1" hidden>
+            <div class="paso solo-si" id="paso-acompanante" tabindex="-1" data-escena="banco" hidden>
               <label class="et" for="acompanante">¿Vienes con acompañante?</label>
               <input class="in" id="acompanante" name="acompanante" autocomplete="off" placeholder="Nombre y apellidos">
               <p class="pista">Si vienes sin acompañante, pulsa siguiente</p>
             </div>
-            <fieldset class="paso solo-si" tabindex="-1" hidden>
+            <fieldset class="paso solo-si" tabindex="-1" data-escena="autobus" hidden>
               <legend class="et">¿Necesitas autobús?</legend>
               <div class="op">
                 <label><input type="checkbox" name="autobus" id="autobus-ida" value="ida">Ida</label>
@@ -741,7 +878,7 @@ textarea.in { resize: vertical; }
               </div>
               <p class="pista">Si no lo necesitas, pulsa siguiente</p>
             </fieldset>
-            <fieldset class="paso solo-si" tabindex="-1" hidden>
+            <fieldset class="paso solo-si" tabindex="-1" data-escena="menu" hidden>
               <legend class="et">¿Necesitas menú especial?</legend>
               <div class="op">
                 <label><input type="checkbox" name="menu" id="menu-celiaquia" value="celiaquia">Celiaquía</label>
@@ -751,12 +888,12 @@ textarea.in { resize: vertical; }
               </div>
               <p class="pista">Si no lo necesitas, pulsa siguiente</p>
             </fieldset>
-            <div class="paso solo-si" tabindex="-1" hidden>
+            <div class="paso solo-si" tabindex="-1" data-escena="nota" hidden>
               <label class="et" for="alergias">¿Tienes alguna alergia?</label>
               <textarea class="in" id="alergias" name="alergias" rows="2" placeholder="Cuéntanos cuál"></textarea>
               <p class="pista">Si no tienes ninguna, pulsa siguiente</p>
             </div>
-            <div class="paso solo-si" tabindex="-1" hidden>
+            <div class="paso solo-si" tabindex="-1" data-escena="baile" hidden>
               <label class="et" for="cancion">¿Alguna canción especial?</label>
               <input class="in" id="cancion" name="cancion" autocomplete="off" placeholder="Canción y artista">
             </div>
@@ -817,6 +954,86 @@ textarea.in { resize: vertical; }
   if (invitado) avisar($('para'), personas ? `Invitación para ${invitado}, ${personas === 1 ? '1 persona' : `${personas} personas`}` : `Invitación para ${invitado}`);
   if (personas === 1) $('paso-acompanante').remove();
 
+  // Escenas de la confirmación: cada pregunta tiene su dibujo y, al avanzar, la cámara entra en el siguiente
+  const escena = $('escena');
+  escena.querySelectorAll('use').forEach(u => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('transform', u.getAttribute('transform'));
+    g.append(...document.querySelector(u.getAttribute('href')).cloneNode(true).children);
+    u.replaceWith(g);
+  });
+  escena.querySelectorAll('path, circle').forEach(p => p.setAttribute('pathLength', 1));
+  const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let escenaActual = null, animaciones = [], escenaVista = false;
+
+  // Lo que el invitado responde también se dibuja: la puerta se abre, aparece su acompañante, el sol o la luna...
+  const sincronizar = () => {
+    escena.querySelectorAll('[data-si]').forEach(g => {
+      const campo = $(g.dataset.si);
+      g.classList.toggle('on', !!campo && (campo.type === 'checkbox' || campo.type === 'radio' ? campo.checked : campo.value.trim() !== ''));
+    });
+    escena.querySelectorAll('[data-texto]').forEach(t => {
+      const campo = $(t.dataset.texto);
+      t.textContent = campo ? campo.value.trim().split(/\s+/).slice(0, 3).join(' ').slice(0, 26) : '';
+    });
+    escena.querySelector('[data-escena="puerta"]').classList.toggle('abierta', $('asiste-si').checked);
+    const escrito = $('alergias').value.trim().length;
+    escena.querySelectorAll('.garabato').forEach((p, i) => { p.style.strokeDashoffset = 1 - Math.min(1, Math.max(0, escrito / 12 - i)); });
+  };
+
+  // Traza las líneas de una escena una tras otra, como si se dibujara en ese momento
+  const trazar = g => {
+    const lineas = [...g.querySelectorAll('path, circle')].filter(p => !p.closest('[data-si]') && !p.classList.contains('garabato'));
+    const paso = Math.min(55, 900 / lineas.length);
+    lineas.forEach((p, i) => {
+      const a = p.animate(
+        [{ strokeDasharray: '1 1', strokeDashoffset: 1, opacity: 0 }, { opacity: 1, offset: .04 }, { strokeDasharray: '1 1', strokeDashoffset: 0, opacity: 1 }],
+        { duration: 560, delay: 140 + i * paso, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'backwards' });
+      animaciones.push(a);
+    });
+  };
+
+  const irEscena = (nombre, volver = false) => {
+    const nueva = escena.querySelector(`[data-escena="${nombre}"]`);
+    if (!nueva || nueva === escenaActual) return;
+    animaciones.forEach(a => a.finish());
+    animaciones = [];
+    const vieja = escenaActual;
+    escenaActual = nueva;
+    escena.querySelectorAll('[data-escena]').forEach(g => { if (g !== vieja) g.hidden = g !== nueva; });
+    sincronizar();
+    if (quieto || !escenaVista || !vieja) {
+      if (vieja) vieja.hidden = true;
+      nueva.hidden = false;
+      return;
+    }
+    nueva.hidden = true;
+    // Hacia delante la cámara se mete por la puerta, el pasillo o el plato; hacia atrás se aleja
+    const [x, y] = (vieja.dataset.foco || '200 110').split(' ');
+    vieja.style.transformOrigin = `${x}px ${y}px`;
+    const alejar = volver || vieja.dataset.salida === 'lejos';
+    const salida = vieja.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `scale(${alejar ? .7 : 2.6})` }],
+      { duration: alejar ? 420 : 620, easing: 'cubic-bezier(.6, 0, .4, 1)' });
+    animaciones.push(salida);
+    salida.onfinish = () => {
+      vieja.hidden = true;
+      if (escenaActual !== nueva) return;
+      nueva.hidden = false;
+      nueva.style.transformOrigin = '200px 110px';
+      animaciones.push(nueva.animate([{ opacity: 0, transform: `scale(${alejar ? 1.2 : .86})` }, { opacity: 1, transform: 'none' }],
+        { duration: 480, easing: 'cubic-bezier(.2, .7, .2, 1)' }));
+      trazar(nueva);
+    };
+  };
+
+  // La primera escena se dibuja cuando el invitado llega a la sección
+  new IntersectionObserver(([e], obs) => {
+    if (!e.isIntersecting) return;
+    obs.disconnect();
+    escenaVista = true;
+    if (escenaActual && !quieto) trazar(escenaActual);
+  }, { threshold: .4 }).observe(escena);
+
   // Asistencia: una pregunta cada vez. Quien no asiste solo responde a las dos primeras.
   const rsvp = $('rsvp');
   const pasos = [...rsvp.querySelectorAll('.paso')];
@@ -835,6 +1052,7 @@ textarea.in { resize: vertical; }
     $('hilo').style.strokeDashoffset = 1 - (i + 1) / lista.length;
     $('rsvp-atras').hidden = i === 0;
     $('rsvp-sig').firstElementChild.textContent = i === lista.length - 1 ? 'Enviar confirmación' : 'Siguiente';
+    irEscena(paso.dataset.escena, volver);
     if (enfocar) (paso.querySelector('.in') || paso).focus({ preventScroll: true });
   };
   const respuestas = () => {
@@ -860,9 +1078,11 @@ textarea.in { resize: vertical; }
     clearTimeout(avance);
     const lista = enCurso(), ultima = lista.indexOf(actual()) === lista.length - 1;
     mostrar(actual(), false, false);
-    if (e.detail && !ultima) avance = setTimeout(() => rsvp.requestSubmit($('rsvp-sig')), 220);
+    sincronizar();
+    // Con "Sí" se deja ver cómo se abren las puertas antes de entrar
+    if (e.detail && !ultima) avance = setTimeout(() => rsvp.requestSubmit($('rsvp-sig')), quieto ? 220 : 900);
   }));
-  rsvp.addEventListener('input', () => { fallo(); guardarBorrador(); });
+  rsvp.addEventListener('input', () => { fallo(); sincronizar(); guardarBorrador(); });
 
   $('rsvp-atras').addEventListener('click', () => {
     const lista = enCurso();
