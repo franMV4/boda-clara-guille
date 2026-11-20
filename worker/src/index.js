@@ -40,11 +40,11 @@ async function guardar(request, env) {
 async function canciones(url) {
   const q = texto(url.searchParams.get('q'), 100);
   if (q.length < 2) return json([]);
-  const r = await fetch(`https://api.deezer.com/search?limit=6&q=${encodeURIComponent(q)}`, { cf: { cacheTtl: 86400, cacheEverything: true } });
+  const r = await fetch(`https://api.deezer.com/search?limit=6&q=${encodeURIComponent(q)}`, { cf: { cacheTtl: 3600, cacheEverything: true } });
   if (!r.ok) return json([], 502);
   const { data = [] } = await r.json();
-  return Response.json(data.map(t => ({ titulo: t.title, artista: t.artist?.name, portada: t.album?.cover_small, enlace: t.link })),
-    { headers: { ...CORS, 'Cache-Control': 'public, max-age=86400' } });
+  return Response.json(data.map(t => ({ titulo: t.title, artista: t.artist?.name, portada: t.album?.cover_small, enlace: t.link, muestra: t.preview })),
+    { headers: { ...CORS, 'Cache-Control': 'public, max-age=3600' } });
 }
 
 // CSV con ; y BOM para que Excel en español lo abra con acentos y columnas bien

@@ -167,6 +167,92 @@ textarea.in { resize: vertical; }
   .lazo-final path:nth-child(4) { animation-delay: 600ms; }
 }
 
+/* Sobre de entrada: la invitación se abre al tocar el lacre */
+html:has(#sobre:not([hidden])) { overflow: hidden; }
+.sobre { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--fondo); }
+.sobre-boton { display: grid; justify-items: center; gap: 3rem; margin: 0; padding: 2rem; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; touch-action: manipulation; }
+.sobre-boton:focus-visible { outline: 2px solid var(--tinta); outline-offset: .4rem; border-radius: 1.2rem; }
+.sobre svg { width: min(46rem, 84vw, 440px); height: auto; stroke-width: 2.2; filter: drop-shadow(0 1.4rem 2rem rgb(63 90 123 / .16)); }
+.sobre .papel { fill: var(--papel); }
+.sobre text { stroke: none; fill: var(--tinta); }
+.sobre .nombres { font: 400 34px var(--script); }
+.sobre .dia { font: 600 8.5px var(--sans); letter-spacing: .24em; fill: var(--gris); }
+.sobre .lacre circle { fill: var(--tinta); stroke: none; }
+.sobre .lacre .borde { fill: none; stroke: #fff; stroke-width: 1; opacity: .45; }
+.sobre .lacre text { fill: #fff; font: 400 21px var(--script); }
+.sobre .lacre, .sobre .solapa, .sobre .tarjeta { transform-box: view-box; }
+.sobre .lacre { transform-origin: 150px 150px; }
+.sobre .solapa { transform-origin: 150px 57px; }
+@media (prefers-reduced-motion: no-preference) {
+  .sobre .lacre { animation: late 2.4s ease-in-out 1s infinite; }
+  .sobre .pide { animation: respira 2.4s ease-in-out infinite; }
+}
+@keyframes late { 0%, 72%, 100% { scale: 1; } 80% { scale: 1.1; } 88% { scale: .97; } }
+@keyframes respira { 50% { opacity: .5; } }
+
+/* El camino: de la iglesia a Hábitat Sella; el autobús avanza con el scroll */
+.mapa { display: block; width: 50rem; height: auto; margin-inline: auto; stroke-width: 2; }
+.mapa .rio { stroke-width: 1.4; opacity: .5; }
+.mapa .ruta { stroke-width: 2.4; stroke-dasharray: 5 7; }
+.mapa .papel { fill: var(--papel); }
+.mapa text { stroke: none; fill: var(--gris-fuerte); font: 600 8.5px var(--sans); letter-spacing: .16em; }
+.mapa .script { fill: var(--tinta); font: 400 22px var(--script); letter-spacing: 0; }
+.mapa .rotulo { fill: var(--gris); font-style: italic; font-weight: 500; letter-spacing: .06em; }
+
+/* Final de la confirmación: los novios en el altar y tu billete */
+.fin-escena { display: block; width: 100%; height: auto; aspect-ratio: 400 / 220; overflow: hidden; stroke-width: 2.6; }
+.petalo { stroke-width: 1.4; fill: rgb(255 255 255 / .18); transform-box: fill-box; transform-origin: center; translate: calc(var(--x) * 1px) -16px; }
+@media (prefers-reduced-motion: no-preference) {
+  .petalo { animation: cae var(--t) linear var(--d) infinite both; }
+}
+@media (prefers-reduced-motion: reduce) { .petalo { translate: calc(var(--x) * 1px) calc(var(--y, 60) * 1px); } }
+@keyframes cae {
+  0% { translate: calc(var(--x) * 1px) -16px; rotate: 0deg; opacity: 0; }
+  10% { opacity: 1; }
+  50% { translate: calc(var(--x) * 1px + 18px) 110px; }
+  90% { opacity: 1; }
+  100% { translate: calc(var(--x) * 1px - 6px) 236px; rotate: 320deg; opacity: 0; }
+}
+.billete-caja { rotate: -1.4deg; filter: drop-shadow(0 1.4rem 1.6rem rgb(10 25 45 / .35)); }
+.billete-caja.nuevo { animation: imprime 900ms var(--sale) 500ms both; }
+@keyframes imprime { from { opacity: 0; translate: 0 4rem; rotate: -6deg; } }
+.billete { --tinta: #3f5a7b; --gris: #626c7e; --gris-fuerte: #4d5667; --borde: #c4ccd8; --corte: 4.6rem;
+  padding: 0 2.6rem 2.4rem; border-radius: 1rem; background: #fff; color: var(--gris); text-align: left;
+  -webkit-mask: radial-gradient(circle at 0 var(--corte), #0000 1.3rem, #000 1.35rem) left / 51% 100% no-repeat, radial-gradient(circle at 100% var(--corte), #0000 1.3rem, #000 1.35rem) right / 51% 100% no-repeat;
+  mask: radial-gradient(circle at 0 var(--corte), #0000 1.3rem, #000 1.35rem) left / 51% 100% no-repeat, radial-gradient(circle at 100% var(--corte), #0000 1.3rem, #000 1.35rem) right / 51% 100% no-repeat; }
+.billete-cabeza { display: flex; justify-content: space-between; align-items: center; gap: 1rem; height: var(--corte); margin: 0 .6rem; border-bottom: 2px dashed var(--borde); font: 700 max(10px, 1.25rem)/1.2 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--gris); }
+.billete-nombre { margin-top: 2.2rem; font: 400 6rem/1.05 var(--script); color: var(--tinta); }
+.billete-datos { display: grid; grid-template-columns: auto 1fr; gap: 1rem 2rem; margin: 2rem 0 0; }
+.billete-datos dt { padding-top: .2em; font: 700 max(10px, 1.2rem)/1.3 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--gris); }
+.billete-datos dd { display: flex; align-items: center; gap: 1rem; min-width: 0; margin: 0; font: 600 max(14px, 1.6rem)/1.35 var(--sans); color: var(--gris-fuerte); }
+.billete-datos img { flex: none; width: 32px; height: 32px; border-radius: .4rem; }
+.billete-pie { margin-top: 2.2rem; padding-top: 1.4rem; border-top: 1px solid var(--borde); font: 600 max(11px, 1.3rem)/1.3 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--tinta); text-align: center; }
+
+/* La canción elegida, como un vinilo que gira mientras suena */
+.disco { display: flex; align-items: center; gap: 1.4rem; margin-top: 1rem; padding: 1rem 1.2rem; border: 1px solid var(--borde); border-radius: 1.2rem; background: var(--fondo); text-align: left; animation: entra 300ms var(--sale); }
+.vinilo { position: relative; flex: none; width: 64px; height: 64px; border-radius: 50%; background: repeating-radial-gradient(circle, #18212c 0 1.6px, #2a3543 1.6px 3.2px); box-shadow: 0 .4rem 1.2rem rgb(0 0 0 / .35); animation: girar 2.4s linear infinite paused; }
+.vinilo img { position: absolute; inset: 29%; width: 42%; height: 42%; border-radius: 50%; object-fit: cover; }
+.vinilo::after { content: ''; position: absolute; inset: 47%; border-radius: 50%; background: #18212c; }
+.disco.sonando .vinilo { animation-play-state: running; }
+@keyframes girar { to { rotate: 1turn; } }
+.disco-texto { flex: 1; min-width: 0; margin: 0; font: 500 max(14px, 1.5rem)/1.35 var(--sans); color: var(--gris-fuerte); }
+.disco-texto b, .disco-texto span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.disco-texto span { font-weight: 400; color: var(--gris); }
+.disco-play { flex: none; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; background: var(--tinta); color: var(--papel); cursor: pointer; touch-action: manipulation; transition: transform 140ms var(--sale); }
+.disco-play:active { transform: scale(.9); }
+.disco-play:focus-visible { outline: 2px solid var(--tinta); outline-offset: 3px; }
+.disco-play svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 3; }
+.disco-play .i-play { fill: currentColor; stroke-width: 2; }
+.disco-play .i-pausa, .disco.sonando .i-play { display: none; }
+.disco.sonando .i-pausa { display: inline; }
+
+/* Al tocar: corazones al decir que sí y un pequeño latido al marcar */
+.chispa { position: fixed; z-index: 30; width: 18px; height: 16px; margin: -8px 0 0 -9px; pointer-events: none; overflow: visible; fill: rgb(255 255 255 / .25); stroke: #fff; stroke-width: 2; }
+@media (prefers-reduced-motion: no-preference) {
+  .op label:has(:checked) { animation: marca 320ms var(--sale); }
+}
+@keyframes marca { 45% { scale: 1.05; } }
+
 /* La foto, como una copia en papel */
 .foto { display: block; box-sizing: border-box; width: 43rem; height: auto; margin: 0 auto 6rem; border: 1rem solid #fff; border-radius: .4rem; box-shadow: 0 1.2rem 3.6rem rgb(63 90 123 / .22); rotate: -1.4deg; stroke: none; overflow: hidden; object-fit: cover; }
 
@@ -207,6 +293,8 @@ textarea.in { resize: vertical; }
   .confirma .der { --x: 42 !important; }
   .confirma .cor { --x: 3 !important; --y: 4 !important; }
   .foto { width: 46rem; margin: 3rem auto 0; }
+  #camino { grid-column: 1 / -1; }
+  #camino .mapa { width: 72rem; }
 }
 </style>
 
@@ -551,6 +639,34 @@ textarea.in { resize: vertical; }
   </g></symbol>
 </svg>
 
+<div class="sobre" id="sobre" role="dialog" aria-modal="true" aria-label="Invitación de boda de Clara y Guille" hidden>
+  <button class="sobre-boton" id="sobre-abrir" type="button">
+    <svg viewBox="0 0 300 200" aria-hidden="true">
+      <path class="papel" d="M8 62C8 59 10 57 13 57H287C290 57 292 59 292 62V191C292 194 290 196 287 196H13C10 196 8 194 8 191Z"/>
+      <g class="tarjeta">
+        <path class="papel" d="M28 68H272V190H28Z"/>
+        <text class="nombres" x="150" y="112" text-anchor="middle">Clara + Guille</text>
+        <text class="dia" x="150" y="134" text-anchor="middle">26 · 06 · 2027</text>
+        <path d="M120 150C135 145 165 145 180 150" stroke-width="1.2"/>
+      </g>
+      <path class="papel" d="M8 60L150 142L292 60V191C292 194 290 196 287 196H13C10 196 8 194 8 191Z"/>
+      <path d="M10 194L118 125M290 194L182 125" stroke-width="1.6"/>
+      <path class="papel solapa" d="M9 60C9 58 11 57 13 57H287C289 57 291 58 291 60L150 150Z"/>
+      <g class="lacre">
+        <circle cx="150" cy="150" r="22"/>
+        <circle class="borde" cx="150" cy="150" r="17"/>
+        <text x="150" y="157" text-anchor="middle">C&amp;G</text>
+      </g>
+    </svg>
+    <span class="l pide">Toca para abrir</span>
+  </button>
+</div>
+<script>
+  // Antes de pintar nada: el sobre sale si es la primera vez en esta visita y no se llega a una sección concreta
+  try { if (!location.hash && sessionStorage.getItem('boda-sobre') !== '1') document.getElementById('sobre').hidden = false; }
+  catch { document.getElementById('sobre').hidden = false; }
+</script>
+
 <main>
   <svg id="hilo-pagina" aria-hidden="true">
     <defs><linearGradient id="hilo-color" gradientUnits="userSpaceOnUse"></linearGradient></defs>
@@ -659,6 +775,50 @@ textarea.in { resize: vertical; }
     <h2 class="s" style="--mt:2.8">Hábitat Sella</h2>
     <p class="t" style="--mt:1.5">Calle Pilar Lorengar, 50830 Villanueva de Gállego, Zaragoza</p>
     <a class="btn" style="--mt:3" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=El%20H%C3%A1bitat%20Sella%2C%20Villanueva%20de%20G%C3%A1llego"><b>Cómo llegar</b></a>
+  </section>
+
+  <section id="camino" data-lado="d">
+    <p class="l" style="--mt:10">De la iglesia a la fiesta</p>
+    <h2 class="s" style="--mt:2;line-height:6rem">El camino</h2>
+    <svg class="mapa" id="mapa" style="--mt:3" viewBox="0 0 400 300" role="img" aria-label="Mapa dibujado: el autobús sale de la iglesia de San Antonio de Padua, en Zaragoza, cruza el Ebro y sube junto al río Gállego hasta Hábitat Sella, en Villanueva de Gállego">
+      <defs>
+        <mask id="ruta-mascara" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="300">
+          <path id="ruta-revela" d="M205 230C207 214 210 204 216 194S232 172 240 158S252 128 256 114S264 92 270 86" stroke="#fff" stroke-width="12" fill="none" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="0"/>
+        </mask>
+      </defs>
+      <!-- Ríos -->
+      <path class="rio" d="M0 196C50 186 96 206 150 194S250 176 300 186S370 196 400 184"/>
+      <path class="rio" d="M0 208C50 198 96 218 150 206S250 188 300 198S370 208 400 196"/>
+      <path class="rio" d="M262 183C270 160 284 148 292 126S314 86 324 66S342 36 348 20"/>
+      <path class="rio" d="M276 182C284 160 296 150 304 128S324 90 334 70S352 40 360 24"/>
+      <text class="rotulo" x="34" y="190">Ebro</text>
+      <text class="rotulo" transform="translate(318 140) rotate(-62)">Gállego</text>
+      <!-- Norte -->
+      <path d="M30 62V30M30 30L25 40M30 30L35 40"/>
+      <text x="30" y="22" text-anchor="middle">N</text>
+      <!-- Zaragoza: el Pilar a la orilla del Ebro -->
+      <path d="M44 244H122M50 244V214H58V244M50 214L54 205L58 214M108 244V214H116V244M108 214L112 205L116 214M58 244V228H108V244"/>
+      <path d="M64 228C64 220 74 220 74 228M76 228C76 214 90 214 90 228M92 228C92 220 102 220 102 228M83 216V211"/>
+      <text class="script" x="84" y="272" text-anchor="middle">Zaragoza</text>
+      <!-- La iglesia -->
+      <path d="M192 262V242L205 232L218 242V262ZM201 262V254C201 250 209 250 209 254V262M218 262V222H227V262M218 222L222.5 213L227 222M222.5 213V206M219.5 209H225.5"/>
+      <text x="210" y="282" text-anchor="middle">CEREMONIA</text>
+      <!-- Hábitat Sella, en Villanueva de Gállego -->
+      <path d="M255 86V68L270 56L285 68V86ZM266 86V77H274V86M262 70H266M274 70H278"/>
+      <path d="M243 86V76M243 76C234 76 233 64 240 62C238 54 250 52 251 60C257 60 256 74 243 76Z"/>
+      <path d="M297 86V78M297 78C290 78 289 68 294 66C293 60 302 59 303 65C307 66 306 77 297 78Z"/>
+      <path d="M270 46C267 42 263 41 263.5 38C264 35.5 268 35.5 270 38.5C272 35.5 276 35.5 276.5 38C277 41 273 42 270 46Z"/>
+      <text x="270" y="104" text-anchor="middle">CELEBRACIÓN</text>
+      <text class="script" x="196" y="30" text-anchor="middle">Villanueva de Gállego</text>
+      <!-- Ruta del autobús -->
+      <path class="ruta" d="M205 230C207 214 210 204 216 194S232 172 240 158S252 128 256 114S264 92 270 86" mask="url(#ruta-mascara)"/>
+      <g class="bus" transform="translate(270 80)">
+        <path class="papel" d="M-14 4V-9C-14 -11 -13 -12 -11 -12H10C13 -12 14 -10 15 -6L16 4Z"/>
+        <path d="M-11 -9H-3V-4H-11ZM0 -9H8V-4H0Z" stroke-width="1.4"/>
+        <circle class="papel" cx="-7" cy="5" r="3"/><circle class="papel" cx="9" cy="5" r="3"/>
+      </g>
+    </svg>
+    <p class="t" style="--mt:2.4">Habrá autobús de ida y vuelta.<br>Márcalo cuando confirmes tu asistencia.</p>
   </section>
 
   <section id="vestimenta" data-lado="d">
@@ -902,6 +1062,15 @@ textarea.in { resize: vertical; }
               <label class="et" for="cancion">¿Alguna canción especial?</label>
               <input class="in" id="cancion" name="cancion" autocomplete="off" placeholder="Busca canción o artista" aria-controls="canciones">
               <input type="hidden" id="cancion-enlace">
+              <input type="hidden" id="cancion-portada">
+              <input type="hidden" id="cancion-muestra">
+              <div class="disco" id="disco" hidden>
+                <div class="vinilo"><img id="disco-portada" alt=""></div>
+                <p class="disco-texto"><b id="disco-titulo"></b><span id="disco-artista"></span></p>
+                <button class="disco-play" id="disco-play" type="button" aria-label="Escuchar un trozo">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5V18.5L18.5 12Z"/><path class="i-pausa" d="M8 5V19M16 5V19"/></svg>
+                </button>
+              </div>
               <ul class="canciones" id="canciones" aria-label="Canciones encontradas" hidden></ul>
             </div>
           </div>
@@ -912,7 +1081,35 @@ textarea.in { resize: vertical; }
           </div>
         </div>
         <div class="form" id="rsvp-fin" hidden>
-          <svg class="lazo-final" viewBox="0 0 150 104" aria-hidden="true">
+          <svg class="fin-escena" id="escena-fin" viewBox="0 0 400 220" aria-hidden="true" hidden>
+            <g class="base">
+              <path d="M70 204V100C70 26 330 26 330 100V204M84 204V102C84 44 316 44 316 102V204"/>
+              <path d="M75 80c2 -3 6 -1 4 2s-7 1 -6 -3s9 -6 11 -1s-3 10 -9 9M109 57c2 -3 6 -1 4 2s-7 1 -6 -3s9 -6 11 -1s-3 10 -9 9M153 46c2 -3 6 -1 4 2s-7 1 -6 -3s9 -6 11 -1s-3 10 -9 9M198 43c2 -3 6 -1 4 2s-7 1 -6 -3s9 -6 11 -1s-3 10 -9 9M243 46c2 -3 6 -1 4 2s-7 1 -6 -3s9 -6 11 -1s-3 10 -9 9M287 57c2 -3 6 -1 4 2s-7 1 -6 -3s9 -6 11 -1s-3 10 -9 9M321 80c2 -3 6 -1 4 2s-7 1 -6 -3s9 -6 11 -1s-3 10 -9 9" stroke-width="2"/>
+              <path d="M86 70C92 64 98 66 100 60M178 40C186 34 190 38 194 34M206 34C212 38 218 34 222 40M300 66C306 66 310 62 314 70"/>
+              <path d="M20 205C140 202 260 207 380 204"/>
+              <use href="#novios" transform="translate(110 64) scale(.25)"/>
+            </g>
+            <g class="petalos">
+              <path class="petalo" style="--x:60;--t:6s;--d:-1s;--y:40" d="M0 0C3 -5 9 -4 8 1C7 6 2 5 0 0Z"/>
+              <path class="petalo" style="--x:110;--t:7.5s;--d:-4s;--y:150" d="M0 0C3 -5 9 -4 8 1C7 6 2 5 0 0Z"/>
+              <path class="petalo" style="--x:150;--t:5.5s;--d:-2.5s;--y:90" d="M0 0C3 -5 9 -4 8 1C7 6 2 5 0 0Z"/>
+              <path class="petalo" style="--x:190;--t:8s;--d:-6s;--y:20" d="M0 0C3 -5 9 -4 8 1C7 6 2 5 0 0Z"/>
+              <path class="petalo" style="--x:225;--t:6.5s;--d:-.5s;--y:120" d="M0 0C3 -5 9 -4 8 1C7 6 2 5 0 0Z"/>
+              <path class="petalo" style="--x:262;--t:7s;--d:-3.5s;--y:60" d="M0 0C3 -5 9 -4 8 1C7 6 2 5 0 0Z"/>
+              <path class="petalo" style="--x:300;--t:6s;--d:-5s;--y:170" d="M0 0C3 -5 9 -4 8 1C7 6 2 5 0 0Z"/>
+              <path class="petalo" style="--x:345;--t:7.8s;--d:-2s;--y:100" d="M0 0C3 -5 9 -4 8 1C7 6 2 5 0 0Z"/>
+              <path class="petalo" style="--x:30;--t:8.4s;--d:-7s;--y:130" d="M0 0C3 -5 9 -4 8 1C7 6 2 5 0 0Z"/>
+            </g>
+          </svg>
+          <div class="billete-caja" id="billete" hidden>
+            <div class="billete">
+              <p class="billete-cabeza"><span>Boda de Clara y Guille</span><span>26·06·27</span></p>
+              <p class="billete-nombre" id="billete-nombre"></p>
+              <dl class="billete-datos" id="billete-datos"></dl>
+              <p class="billete-pie">San Antonio de Padua · 12:30</p>
+            </div>
+          </div>
+          <svg class="lazo-final" id="lazo-final" viewBox="0 0 150 104" aria-hidden="true">
             <path pathLength="1" d="M75 34C58 40 28 30 20 14C14 4 34 2 50 10C62 16 72 26 75 34"/>
             <path pathLength="1" d="M75 34C92 40 122 30 130 14C136 4 116 2 100 10C88 16 78 26 75 34"/>
             <path pathLength="1" d="M73 36C62 54 50 70 30 88C24 94 26 100 34 98"/>
@@ -947,6 +1144,37 @@ textarea.in { resize: vertical; }
   const BODA = new Date('2027-06-26T12:30:00');
   const guardar = (clave, valor) => { try { localStorage.setItem(clave, JSON.stringify(valor)); } catch {} };
   const leer = clave => { try { return JSON.parse(localStorage.getItem(clave)); } catch { return null; } };
+  const vibrar = patron => { try { navigator.vibrate?.(patron); } catch {} };
+
+  // El sobre: al tocarlo salta el lacre, se abre la solapa, sale la tarjeta y empieza la portada
+  const sobre = $('sobre');
+  let abrirSobre;
+  const sobreAbierto = new Promise(r => { abrirSobre = r; });
+  if (sobre.hidden) abrirSobre();
+  else {
+    const boton = $('sobre-abrir');
+    boton.addEventListener('click', async () => {
+      boton.disabled = true;
+      try { sessionStorage.setItem('boda-sobre', '1'); } catch {}
+      vibrar(15);
+      const terminar = () => { sobre.hidden = true; abrirSobre(); };
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        // Por si el navegador no anima (pestaña en segundo plano), el sobre nunca se queda delante
+        const seguro = setTimeout(terminar, 4500);
+        const q = s => sobre.querySelector(s);
+        const paso = (el, marcos, op) => el.animate(marcos, { fill: 'forwards', ...op }).finished;
+        q('.lacre').style.animation = 'none';
+        q('.pide').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' });
+        await paso(q('.lacre'), [{ scale: 1, opacity: 1 }, { scale: 1.6, opacity: 0 }], { duration: 340, easing: 'cubic-bezier(.5, 0, .75, 0)' });
+        await paso(q('.solapa'), [{ transform: 'scaleY(1)' }, { transform: 'scaleY(-1)' }], { duration: 560, easing: 'cubic-bezier(.65, 0, .35, 1)' });
+        q('.tarjeta').before(q('.solapa'));
+        await paso(q('.tarjeta'), [{ transform: 'none' }, { transform: 'translateY(-96px)' }], { duration: 720, easing: 'cubic-bezier(.2, .7, .2, 1)' });
+        await paso(sobre, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.15)' }], { duration: 560, delay: 300, easing: 'cubic-bezier(.5, 0, .75, 0)' });
+        clearTimeout(seguro);
+      }
+      terminar();
+    }, { once: true });
+  }
 
   // Cuenta atrás: no se muestra si la fecha ya ha pasado
   const dias = Math.ceil((BODA - Date.now()) / 864e5);
@@ -962,14 +1190,14 @@ textarea.in { resize: vertical; }
   if (personas === 1) $('paso-acompanante').remove();
 
   // Escenas de la confirmación: cada pregunta tiene su dibujo y, al avanzar, la cámara entra en el siguiente
-  const escena = $('escena');
-  escena.querySelectorAll('use').forEach(u => {
+  const escena = $('escena'), escenaFin = $('escena-fin');
+  document.querySelectorAll('#escena use, #escena-fin use').forEach(u => {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('transform', u.getAttribute('transform'));
     g.append(...document.querySelector(u.getAttribute('href')).cloneNode(true).children);
     u.replaceWith(g);
   });
-  escena.querySelectorAll('path, circle').forEach(p => p.setAttribute('pathLength', 1));
+  document.querySelectorAll('#escena :is(path, circle), #escena-fin .base :is(path, circle)').forEach(p => p.setAttribute('pathLength', 1));
   const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let escenaActual = null, animaciones = [], escenaVista = false;
 
@@ -1049,6 +1277,9 @@ textarea.in { resize: vertical; }
   const pasos = [...rsvp.querySelectorAll('.paso')];
   const enCurso = () => $('asiste-no').checked ? pasos.filter(p => !p.classList.contains('solo-si')) : pasos;
   const actual = () => pasos.find(p => !p.hidden);
+  const disco = $('disco'), muestra = new Audio();
+  muestra.preload = 'none';
+  const pararMuestra = () => { muestra.pause(); disco.classList.remove('sonando'); };
   const fallo = (texto = '') => {
     $('rsvp-error').textContent = texto;
     rsvp.querySelectorAll('[aria-invalid]').forEach(c => c.removeAttribute('aria-invalid'));
@@ -1063,6 +1294,7 @@ textarea.in { resize: vertical; }
     $('rsvp-atras').hidden = i === 0;
     $('rsvp-sig').firstElementChild.textContent = i === lista.length - 1 ? 'Enviar confirmación' : 'Siguiente';
     irEscena(paso.dataset.escena, volver);
+    pararMuestra();
     if (enfocar) (paso.querySelector('.in') || paso).focus({ preventScroll: true });
   };
   const respuestas = () => {
@@ -1071,7 +1303,36 @@ textarea.in { resize: vertical; }
     return campos;
   };
   const guardarBorrador = (hecho = false) => guardar('boda-rsvp', { campos: respuestas(), paso: pasos.indexOf(actual()), hecho });
-  const agradecer = () => {
+  // Tu billete para la boda, con lo que has elegido
+  const rellenarBillete = () => {
+    $('billete-nombre').textContent = $('nombre').value.trim();
+    const filas = [];
+    const fila = (titulo, texto, imagen) => { if (texto) filas.push([titulo, texto, imagen]); };
+    fila('Asistencia', 'Sí, asisto');
+    fila('Acompañante', $('acompanante').value.trim());
+    const ida = $('autobus-ida').checked, vuelta = $('autobus-vuelta').checked;
+    fila('Autobús', ida && vuelta ? 'Ida y vuelta' : ida ? 'Ida' : vuelta ? 'Vuelta' : '');
+    fila('Menú', [...rsvp.querySelectorAll('[name="menu"]:checked')].map(c => c.parentElement.textContent.trim()).join(', '));
+    fila('Alergias', $('alergias').value.trim());
+    fila('Canción', $('cancion').value.trim(), $('cancion-portada').value);
+    $('billete-datos').replaceChildren(...filas.flatMap(([titulo, texto, imagen]) => {
+      const dt = document.createElement('dt'), dd = document.createElement('dd'), span = document.createElement('span');
+      dt.textContent = titulo;
+      span.textContent = texto;
+      if (imagen) dd.append(Object.assign(new Image(32, 32), { src: imagen, alt: '' }));
+      dd.append(span);
+      return [dt, dd];
+    }));
+  };
+
+  const agradecer = (recien = false) => {
+    const si = $('asiste-si').checked;
+    ver(escenaFin, si);
+    ver($('lazo-final'), !si);
+    $('billete').hidden = !si;
+    $('billete').classList.toggle('nuevo', recien && !quieto);
+    if (si) rellenarBillete();
+    if (si && recien && !quieto) trazar(escenaFin.querySelector('.base'));
     const nombre = $('nombre').value.trim().split(/\s+/)[0];
     avisar($('rsvp-aviso'), ($('asiste-si').checked
       ? `¡Gracias, ${nombre}! Nos vemos en la boda.`
@@ -1082,10 +1343,33 @@ textarea.in { resize: vertical; }
   };
 
   let avance;
+  // Unos corazones salen del botón al decir que sí
+  const corazones = (x, y) => {
+    if (quieto) return;
+    for (let i = 0; i < 8; i++) {
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      c.setAttribute('viewBox', '0 0 24 22');
+      c.setAttribute('class', 'chispa');
+      c.innerHTML = '<path d="M12 20C5 14 2 11 2 7C2 4 4 2 7 2C9 2 11 3 12 5C13 3 15 2 17 2C20 2 22 4 22 7C22 11 19 14 12 20Z"/>';
+      c.style.left = x + 'px';
+      c.style.top = y + 'px';
+      document.body.append(c);
+      const angulo = -Math.PI / 2 + (i - 3.5) * .32, lejos = 60 + Math.random() * 50;
+      c.animate([
+        { transform: 'translate(0, 0) scale(.3)', opacity: 1 },
+        { transform: `translate(${Math.cos(angulo) * lejos}px, ${Math.sin(angulo) * lejos}px) scale(${.8 + Math.random() * .5}) rotate(${(Math.random() - .5) * 60}deg)`, opacity: 0 },
+      ], { duration: 800 + Math.random() * 400, easing: 'cubic-bezier(.2, .7, .3, 1)' }).finished.then(() => c.remove(), () => c.remove());
+    }
+  };
   // Tocar "Sí, asisto" ya pasa a la siguiente pregunta; con teclado (detail 0) se usa el botón Siguiente.
   // "No podré ir" es la última pregunta, así que espera al botón Enviar para no mandarlo por un toque sin querer.
   rsvp.querySelectorAll('[name="asiste"]').forEach(radio => radio.addEventListener('click', e => {
     clearTimeout(avance);
+    if (e.detail && radio.value === 'si') {
+      vibrar(12);
+      const caja = radio.closest('label').getBoundingClientRect();
+      corazones(caja.left + caja.width / 2, caja.top + caja.height / 2);
+    }
     const lista = enCurso(), ultima = lista.indexOf(actual()) === lista.length - 1;
     mostrar(actual(), false, false);
     sincronizar();
@@ -1143,7 +1427,8 @@ textarea.in { resize: vertical; }
       });
       if (!r.ok) throw new Error(r.status);
       guardarBorrador(true);
-      agradecer();
+      vibrar([20, 60, 30]);
+      agradecer(true);
     } catch {
       fallo('No se ha podido enviar. Revisa la conexión e inténtalo otra vez.');
       boton.textContent = 'Enviar confirmación';
@@ -1157,7 +1442,8 @@ textarea.in { resize: vertical; }
   let busqueda, pedido;
   cancion.addEventListener('input', e => {
     if (!e.isTrusted) return;
-    $('cancion-enlace').value = '';
+    $('cancion-enlace').value = $('cancion-portada').value = $('cancion-muestra').value = '';
+    pintarDisco();
     clearTimeout(busqueda);
     pedido?.abort();
     const q = cancion.value.trim();
@@ -1180,7 +1466,10 @@ textarea.in { resize: vertical; }
           b.addEventListener('click', () => {
             cancion.value = `${t.titulo} – ${t.artista}`;
             $('cancion-enlace').value = t.enlace || '';
+            $('cancion-portada').value = t.portada || '';
+            $('cancion-muestra').value = t.muestra || '';
             lista.hidden = true;
+            pintarDisco();
             cancion.dispatchEvent(new Event('input', { bubbles: true }));
             $('rsvp-sig').focus({ preventScroll: true });
           });
@@ -1195,6 +1484,28 @@ textarea.in { resize: vertical; }
     }, 350);
   });
   cancion.addEventListener('keydown', e => { if (e.key === 'Escape') lista.hidden = true; });
+
+  // La canción elegida se ve como un vinilo y se puede escuchar un trozo de 30 segundos
+  const pintarDisco = () => {
+    pararMuestra();
+    disco.hidden = !$('cancion-enlace').value;
+    if (disco.hidden) return;
+    const [titulo, ...artista] = cancion.value.split(' – ');
+    $('disco-titulo').textContent = titulo;
+    $('disco-artista').textContent = artista.join(' – ');
+    $('disco-portada').hidden = !$('cancion-portada').value;
+    $('disco-portada').src = $('cancion-portada').value;
+    $('disco-play').hidden = !$('cancion-muestra').value;
+  };
+  $('disco-play').addEventListener('click', () => {
+    if (!muestra.paused) return pararMuestra();
+    if (muestra.src !== $('cancion-muestra').value) muestra.src = $('cancion-muestra').value;
+    disco.classList.add('sonando');
+    // Si el enlace de la muestra ha caducado, el vinilo simplemente se para
+    muestra.play().catch(pararMuestra);
+  });
+  muestra.addEventListener('ended', pararMuestra);
+  muestra.addEventListener('error', pararMuestra);
 
   $('rsvp-cambiar').addEventListener('click', () => {
     $('rsvp-fin').hidden = true;
@@ -1215,6 +1526,7 @@ textarea.in { resize: vertical; }
     });
     if (pasos[borrador.paso]) mostrar(pasos[borrador.paso], false, false);
     // Solo cuenta como enviada si de verdad llegó al servidor (las pruebas de la versión de ejemplo no)
+    pintarDisco();
     if (borrador.hecho && leer('boda-rsvp-id')) agradecer();
   } else {
     mostrar(pasos[0], false, false);
@@ -1418,8 +1730,7 @@ textarea.in { resize: vertical; }
     };
 
     // El trazo sigue el orden del dibujo; cada línea tarda según lo larga que es
-    const trazos = svg => {
-      const lista = [...svg.querySelectorAll('path, circle')];
+    const trazos = (svg, lista = [...svg.querySelectorAll('path, circle')]) => {
       const largos = lista.map(t => t.getTotalLength());
       const total = largos.reduce((a, b) => a + b, 0);
       let hecho = 0;
@@ -1466,6 +1777,15 @@ textarea.in { resize: vertical; }
         item.el.style.opacity = p >= 1 ? '' : s;
         item.el.style.translate = p >= 1 ? '' : `0 ${(1 - s) * 1.4}rem`;
       },
+      // El autobús recorre el camino dibujado mientras el mapa pasa por la pantalla
+      ruta(item, p) {
+        item.revela.style.strokeDashoffset = 1 - p;
+        const L = item.largo * p;
+        const a = item.camino.getPointAtLength(L), b = item.camino.getPointAtLength(Math.min(item.largo, L + 2));
+        item.bus.setAttribute('transform', `translate(${a.x.toFixed(1)} ${(a.y - 6).toFixed(1)})${b.x < a.x - .05 ? ' scale(-1 1)' : ''}`);
+        item.bus.style.opacity = p > 0 ? '' : 0;
+        item.textos.forEach(t => { t.style.opacity = limitar(p * 4 - .3); });
+      },
       foto(item, p) {
         const s = suave(p);
         item.el.style.opacity = p >= 1 ? '' : s;
@@ -1491,6 +1811,9 @@ textarea.in { resize: vertical; }
     });
     main.querySelectorAll('section > .btn, .pie > .btn, #rsvp, #subida, .arco, .sube').forEach(el => items.push({ el, tipo: 'sube' }));
     items.push({ el: main.querySelector('.foto'), tipo: 'foto' });
+    const mapa = $('mapa'), camino = mapa.querySelector('.ruta');
+    items.push({ el: mapa, tipo: 'dibujo', trazos: trazos(mapa, [...mapa.querySelectorAll('path, circle')].filter(t => !t.closest('.bus, mask') && t !== camino)) });
+    items.push({ el: mapa, tipo: 'ruta', camino, largo: camino.getTotalLength(), revela: $('ruta-revela'), bus: mapa.querySelector('.bus'), textos: [...mapa.querySelectorAll('text')] });
     items.push({ el: mas, tipo: 'sube' });
 
     // Guion de la portada, en milisegundos desde que se abre
@@ -1513,7 +1836,8 @@ textarea.in { resize: vertical; }
       trazo.style.strokeDashoffset = largoTotal - L;
     };
 
-    const inicio = performance.now(), duracion = Math.max(...guion.map(g => g.b));
+    const duracion = Math.max(...guion.map(g => g.b));
+    let inicio;
     const cuadro = ahora => {
       const t = ahora - inicio;
       guion.forEach(({ item, a, b }) => aplicar(item, limitar((t - a) / (b - a))));
@@ -1521,13 +1845,17 @@ textarea.in { resize: vertical; }
       pintarHilo(y);
       if (t < duracion) requestAnimationFrame(cuadro);
     };
-    requestAnimationFrame(cuadro);
-    // Si el navegador no está dibujando fotogramas, la portada aparece igualmente
-    setTimeout(() => {
-      guion.forEach(({ item }) => aplicar(item, 1));
-      abierto = 1;
-      pintarHilo(y);
-    }, duracion + 200);
+    // La portada se escribe cuando se abre el sobre
+    sobreAbierto.then(() => {
+      inicio = performance.now();
+      requestAnimationFrame(cuadro);
+      // Si el navegador no está dibujando fotogramas, la portada aparece igualmente
+      setTimeout(() => {
+        guion.forEach(({ item }) => aplicar(item, 1));
+        abierto = 1;
+        pintarHilo(y);
+      }, duracion + 200);
+    });
 
     // Tramo de scroll de cada pieza: empieza al asomar por abajo y acaba antes de llegar a media pantalla
     const medir = () => {
@@ -1536,6 +1864,7 @@ textarea.in { resize: vertical; }
         if (item.intro) return;
         const caja = item.el.getBoundingClientRect();
         const tramo = item.tipo === 'dibujo' ? Math.min(alto * .5, Math.max(alto * .26, caja.height * .9))
+          : item.tipo === 'ruta' ? alto * .7
           : item.tipo === 'foto' ? alto * .4
           : item.tipo === 'escrito' ? alto * .22 : alto * .14;
         item.fin = Math.min(caja.top + scrollY - alto * .95 + tramo, tope - 1);
