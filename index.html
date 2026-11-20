@@ -993,6 +993,9 @@ textarea.in { resize: vertical; }
     });
   };
 
+  // En SVG la propiedad .hidden no existe: hay que poner o quitar el atributo
+  const ver = (g, si) => g.toggleAttribute('hidden', !si);
+
   const irEscena = (nombre, volver = false) => {
     const nueva = escena.querySelector(`[data-escena="${nombre}"]`);
     if (!nueva || nueva === escenaActual) return;
@@ -1000,14 +1003,14 @@ textarea.in { resize: vertical; }
     animaciones = [];
     const vieja = escenaActual;
     escenaActual = nueva;
-    escena.querySelectorAll('[data-escena]').forEach(g => { if (g !== vieja) g.hidden = g !== nueva; });
+    escena.querySelectorAll('[data-escena]').forEach(g => { if (g !== vieja) ver(g, g === nueva); });
     sincronizar();
     if (quieto || !escenaVista || !vieja) {
-      if (vieja) vieja.hidden = true;
-      nueva.hidden = false;
+      if (vieja) ver(vieja, false);
+      ver(nueva, true);
       return;
     }
-    nueva.hidden = true;
+    ver(nueva, false);
     // Hacia delante la cámara se mete por la puerta, el pasillo o el plato; hacia atrás se aleja
     const [x, y] = (vieja.dataset.foco || '200 110').split(' ');
     vieja.style.transformOrigin = `${x}px ${y}px`;
@@ -1016,9 +1019,9 @@ textarea.in { resize: vertical; }
       { duration: alejar ? 420 : 620, easing: 'cubic-bezier(.6, 0, .4, 1)' });
     animaciones.push(salida);
     salida.onfinish = () => {
-      vieja.hidden = true;
+      ver(vieja, false);
       if (escenaActual !== nueva) return;
-      nueva.hidden = false;
+      ver(nueva, true);
       nueva.style.transformOrigin = '200px 110px';
       animaciones.push(nueva.animate([{ opacity: 0, transform: `scale(${alejar ? 1.2 : .86})` }, { opacity: 1, transform: 'none' }],
         { duration: 480, easing: 'cubic-bezier(.2, .7, .2, 1)' }));
