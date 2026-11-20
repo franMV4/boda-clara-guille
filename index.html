@@ -1358,7 +1358,9 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
       c.animate([
         { transform: 'translate(0, 0) scale(.3)', opacity: 1 },
         { transform: `translate(${Math.cos(angulo) * lejos}px, ${Math.sin(angulo) * lejos}px) scale(${.8 + Math.random() * .5}) rotate(${(Math.random() - .5) * 60}deg)`, opacity: 0 },
-      ], { duration: 800 + Math.random() * 400, easing: 'cubic-bezier(.2, .7, .3, 1)' }).finished.then(() => c.remove(), () => c.remove());
+      ], { duration: 800 + Math.random() * 400, easing: 'cubic-bezier(.2, .7, .3, 1)' });
+      // Si el navegador no anima (pestaña en segundo plano), no se quedan flotando
+      setTimeout(() => c.remove(), 1600);
     }
   };
   // Tocar "Sí, asisto" ya pasa a la siguiente pregunta; con teclado (detail 0) se usa el botón Siguiente.
