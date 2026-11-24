@@ -40,7 +40,7 @@
 }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 body { margin: 0; background: var(--fondo); color: var(--gris); font: 400 max(14px, 1.9rem)/1.55 var(--sans); }
-main { position: relative; width: 55.2rem; margin: 0 auto; padding-bottom: 14rem; background: var(--papel); overflow: hidden; text-align: center; }
+main { position: relative; width: 55.2rem; margin: 0 auto; padding-bottom: 14rem; background: var(--papel); overflow: hidden; overflow: clip; text-align: center; }
 section { position: relative; display: flow-root; padding-bottom: 7rem; scroll-margin-top: 2rem; }
 h1, h2, h3, p, ol { margin: 0; padding: 0; font: inherit; }
 [hidden] { display: none !important; }
@@ -81,10 +81,6 @@ svg { overflow: visible; fill: none; stroke: var(--tinta); stroke-width: 3.5; st
 body:has(input:focus, textarea:focus) .flotante { opacity: 0; translate: -50% 150%; pointer-events: none; }
 
 /* Cronograma */
-.crono { position: relative; display: grid; gap: 2.6rem; width: 42rem; margin-inline: auto; list-style: none; text-align: left; }
-.crono li { display: grid; grid-template-columns: 13rem 1fr; gap: 3rem; align-items: baseline; }
-.crono time { font: 500 clamp(18px, 2.8rem, 24px)/1.2 var(--num); font-feature-settings: "lnum"; color: var(--tinta); text-align: right; }
-.crono .traza { position: absolute; left: 14.2rem; top: .4rem; width: 1.4rem; height: calc(100% - .8rem); stroke-width: 2.4; }
 
 /* Formularios: mínimo 16px en los campos para que iOS no haga zoom y 44px de zona táctil */
 .form { display: grid; gap: 2.6rem; width: 42rem; margin-inline: auto; }
@@ -130,10 +126,45 @@ textarea.in { resize: vertical; }
 @keyframes entra { from { opacity: 0; translate: 2.5rem 0; } }
 @keyframes vuelve { from { opacity: 0; translate: -2.5rem 0; } }
 
-/* Nuestra historia */
-.historia { display: grid; gap: 7rem; width: 44rem; margin-inline: auto; list-style: none; }
-.historia li { display: grid; gap: 1.4rem; justify-items: center; }
-.historia h3 { margin-top: 1rem; }
+/* Secciones fijas: la sección se queda en pantalla y el scroll avanza lo que pasa dentro */
+section.fija { padding-bottom: 0; }
+.viaje { height: calc(100vh + 6 * 65vh); height: calc(100svh + 6 * 65svh); }
+.jornada { height: calc(100vh + 6 * 55vh); height: calc(100svh + 6 * 55svh); }
+.fijo { position: sticky; top: 0; display: flex; flex-direction: column; justify-content: center; gap: min(2.2rem, 2.4svh); box-sizing: border-box; height: 100vh; height: 100svh; padding: 3rem 3.5rem; overflow: hidden; }
+
+/* Nuestra historia: un paisaje dibujado que la cámara recorre */
+.mundo { display: block; flex: none; width: 100%; height: 46vh; height: 46svh; overflow: hidden; stroke-width: 2; }
+.mundo [data-centro] :is(path, circle), .sendero { stroke-dasharray: 1 1; }
+.sendero { stroke-width: 2.2; }
+.paradas { display: grid; margin: 0; padding: 0; list-style: none; min-height: 15rem; }
+.parada { grid-area: 1 / 1; display: grid; gap: 1rem; align-content: start; opacity: 0; translate: 0 1.6rem; transition: opacity 420ms var(--sale), translate 520ms var(--sale); }
+.parada.on { opacity: 1; translate: 0 0; }
+.parada .s { font-size: 5.6rem; line-height: 6.4rem; }
+
+/* Así será el día: el horario mueve el autobús, el sol y la noche */
+.lienzo { box-sizing: border-box; width: min(100%, 62vh); width: min(100%, 62svh); margin-inline: auto; padding: 1.2rem; border-radius: 1.6rem; background: var(--fondo); transition: background 700ms var(--sale); }
+.lienzo.noche { background: #3f5a7b; }
+.lienzo.noche .mapa { --tinta: #fff; --gris-fuerte: #fff; --gris: #c9d4e2; --papel: #3f5a7b; }
+.mapa { display: block; width: 100%; height: auto; stroke-width: 2; }
+.mapa :is(path, circle, text) { transition: stroke 600ms, fill 600ms; }
+.mapa [data-hora] { opacity: 0; scale: .6; transform-box: fill-box; transform-origin: center; transition: opacity 300ms, scale 420ms var(--sale); }
+.mapa [data-hora].on { opacity: 1; scale: 1; }
+.mapa .sol, .mapa .luna { transition: opacity 500ms; }
+.hora-actual { display: grid; gap: .6rem; }
+.hora-actual time { font: 500 clamp(30px, 6rem, 48px)/1 var(--num); font-feature-settings: "lnum"; color: var(--tinta); }
+.hora-actual span { font-size: clamp(14px, 2rem, 18px); line-height: 1.35; color: var(--gris-fuerte); }
+.hora-actual.cambia { animation: entra 360ms var(--sale); }
+.horas { display: grid; grid-template-columns: repeat(7, 1fr); width: min(100%, 64rem); margin: 0 auto; padding: 0; list-style: none; border-top: 1px solid var(--borde); }
+.hora { position: relative; padding-top: 1rem; font: 500 clamp(11px, 1.5rem, 13px)/1 var(--num); font-feature-settings: "lnum"; color: var(--gris); transition: color 300ms; }
+.hora span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.hora::before { content: ''; position: absolute; top: -2px; left: 22%; right: 22%; height: 3px; border-radius: 2px; background: var(--tinta); opacity: 0; transition: opacity 300ms; }
+.hora.on { color: var(--tinta); }
+.hora.on::before { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .parada, .hora, .hora::before, .lienzo, .mapa [data-hora], .mapa :is(path, circle, text), .mapa .sol, .mapa .luna { transition: none; }
+}
+
+/* Nuestra historia (antes en lista) */
 .pareja { display: flex; align-items: flex-end; justify-content: center; gap: 2rem; }
 .pareja .ic { margin: 0; }
 
@@ -159,7 +190,6 @@ textarea.in { resize: vertical; }
 .confirma { --tinta: #ffffff; --papel: #3f5a7b; --gris: #dde4ed; --gris-fuerte: #ffffff; --borde: #a9bacf; --fondo: #4c688c; margin-block: 8rem; background: #3f5a7b; scroll-margin-top: 0; }
 .confirma .interior { position: relative; display: flow-root; }
 #subida > div > .btn { width: max-content; }
-.crono .t { margin: 0; text-align: left; }
 
 /* Lazo final */
 .lazo-final { display: block; width: 26rem; height: 18rem; margin-inline: auto; stroke-width: 3.4; }
@@ -195,7 +225,6 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
 @keyframes respira { 50% { opacity: .5; } }
 
 /* El camino: de la iglesia a Hábitat Sella; el autobús avanza con el scroll */
-.mapa { display: block; width: 50rem; height: auto; margin-inline: auto; stroke-width: 2; }
 .mapa .rio { stroke-width: 1.4; opacity: .5; }
 .mapa .ruta { stroke-width: 2.4; stroke-dasharray: 5 7; }
 .mapa .papel { fill: var(--papel); }
@@ -285,8 +314,9 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
   .fecha .tar { --x: 94 !important; --y: 2 !important; }
 
   /* Los dibujos que en móvil se cortan en el borde aquí se ven enteros dentro de su columna */
-  #historia { grid-column: 1 / -1; }
-  .historia { grid-template-columns: repeat(3, 1fr); column-gap: 6rem; row-gap: 9rem; width: 112rem; align-items: start; }
+  #historia, #dia, #fotos { grid-column: 1 / -1; }
+  .fijo { padding-inline: 8rem; }
+  .mundo { height: 52vh; height: 52svh; }
   .izq { --x: 0 !important; }
   .der { --x: 33 !important; }
 
@@ -298,8 +328,6 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
   .confirma .der { --x: 42 !important; }
   .confirma .cor { --x: 3 !important; --y: 4 !important; }
   .foto { width: 46rem; margin: 3rem auto 0; }
-  #camino { grid-column: 1 / -1; }
-  #camino .mapa { width: 72rem; }
 }
 </style>
 
@@ -721,51 +749,48 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
     </div>
   </section>
 
-  <section id="historia" data-lado="i">
-    <h2 class="s" style="--mt:10">Nuestra historia</h2>
-    <ol class="historia" style="--mt:4">
-      <li>
-        <svg class="ic" style="--w:20;--h:13" aria-hidden="true"><use href="#tienda"/></svg>
-        <h3 class="l fuerte">Amanecer</h3>
-        <p class="t">Nos conocimos en Amanecer.</p>
-      </li>
-      <li>
-        <svg class="ic" style="--w:24;--h:15.8" aria-hidden="true"><use href="#montana"/></svg>
-        <h3 class="l fuerte">La Gran Facha</h3>
-        <p class="t">Un buen sitio para nosotros es la cima de un pico con vistas a un ibón.</p>
-      </li>
-      <li>
-        <svg class="ic" style="--w:22;--h:13.8" aria-hidden="true"><use href="#bici-juego"/></svg>
-        <h3 class="l fuerte">Lo que nos une</h3>
-        <p class="t">Bicicleta, correr, leer en la playa y, sobre todo, los nuevos retos.</p>
-      </li>
-      <li>
-        <div class="pareja">
-          <svg class="ic" style="--w:16;--h:12.8" aria-hidden="true"><use href="#perezoso"/></svg>
-          <svg class="ic" style="--w:17;--h:10.8" aria-hidden="true"><use href="#piramides"/></svg>
-        </div>
-        <h3 class="l fuerte">Costa Rica y Egipto</h3>
-        <p class="t">Nuestros mejores viajes juntos.</p>
-      </li>
-      <li>
-        <svg class="ic" style="--w:20;--h:23" aria-hidden="true"><use href="#ferrata"/></svg>
-        <h3 class="l fuerte">La pedida</h3>
-        <p class="t">Tenía que ser en una vía ferrata.</p>
-      </li>
-      <li>
-        <svg class="ic" style="--w:9;--h:10.6" aria-hidden="true"><use href="#anillos"/></svg>
-        <h3 class="l fuerte">26 de junio de 2027</h3>
-        <p class="t">Y ahora, el sí.</p>
-      </li>
-    </ol>
+  <section id="historia" class="fija viaje" data-lado="i">
+    <div class="fijo">
+      <h2 class="s">Nuestra historia</h2>
+      <svg class="mundo" id="viaje-mundo" viewBox="20 138 460 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path class="sendero" d="M40 470C140 470 160 470 250 470S600 368 730 366S1000 506 1150 506S1450 356 1595 356S1900 440 2075 440S2350 446 2490 446S2700 446 2820 440"/>
+        <g data-centro="250 348">
+          <svg x="100" y="250" width="300" height="196" viewBox="0 0 230 150"><use href="#tienda"/></svg>
+        </g>
+        <g data-centro="730 231">
+          <svg x="560" y="120" width="340" height="223" viewBox="0 0 320 210"><use href="#montana"/></svg>
+        </g>
+        <g data-centro="1150 394">
+          <svg x="1000" y="300" width="300" height="188" viewBox="0 0 240 150"><use href="#bici-juego"/></svg>
+        </g>
+        <g data-centro="1600 262">
+          <svg x="1380" y="180" width="190" height="152" viewBox="0 0 200 160"><use href="#perezoso"/></svg>
+          <svg x="1590" y="196" width="220" height="140" viewBox="0 0 220 140"><use href="#piramides"/></svg>
+        </g>
+        <g data-centro="2075 290">
+          <svg x="1950" y="146" width="250" height="288" viewBox="0 0 260 300"><use href="#ferrata"/></svg>
+        </g>
+        <g data-centro="2470 300">
+          <svg x="2300" y="220" width="110" height="130" viewBox="0 0 110 130"><use href="#anillos"/></svg>
+          <svg x="2440" y="160" width="170" height="278" viewBox="0 0 220 360"><use href="#iglesia-sa"/></svg>
+        </g>
+      </svg>
+      <ol class="paradas">
+        <li class="parada on"><h3 class="s">Amanecer</h3><p class="t">Nos conocimos en Amanecer.</p></li>
+        <li class="parada"><h3 class="s">La Gran Facha</h3><p class="t">Un buen sitio para nosotros es la cima de un pico con vistas a un ibón.</p></li>
+        <li class="parada"><h3 class="s">Lo que nos une</h3><p class="t">Bicicleta, correr, leer en la playa y, sobre todo, los nuevos retos.</p></li>
+        <li class="parada"><h3 class="s">Costa Rica y Egipto</h3><p class="t">Nuestros mejores viajes juntos.</p></li>
+        <li class="parada"><h3 class="s">La pedida</h3><p class="t">Tenía que ser en una vía ferrata.</p></li>
+        <li class="parada"><h3 class="s">26 de junio de 2027</h3><p class="t">Y ahora, el sí.</p></li>
+      </ol>
+    </div>
   </section>
 
   <section id="ceremonia" data-lado="d">
     <svg class="d izq" style="--x:1;--y:2;--w:11;--h:18" aria-hidden="true"><use href="#iglesia-sa"/></svg>
-    <p class="l" style="--mt:17">Ceremonia religiosa<br>a las 12:30</p>
+    <p class="t" style="--mt:21">Ceremonia religiosa a las 12:30 en</p>
     <svg class="ic" style="--mt:2.5;--w:9;--h:8.5" aria-hidden="true"><use href="#i-iglesia"/></svg>
-    <p class="l fuerte" style="--mt:1.5">Iglesia</p>
-    <h2 class="s" style="--mt:2.7">San Antonio<br>de Padua</h2>
+    <h2 class="s" style="--mt:2">San Antonio<br>de Padua</h2>
     <p class="t" style="--mt:1.8">Paseo de Cuéllar, 8-10, 50006 Zaragoza</p>
     <a class="btn" style="--mt:3" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia%20de%20San%20Antonio%20de%20Padua%2C%20Paseo%20de%20Cu%C3%A9llar%2C%20Zaragoza"><b>Cómo llegar</b></a>
     <p class="t firma" style="--mt:3.2">Nos gustaría que nos acompañéis desde este momento</p>
@@ -774,56 +799,77 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
   <section id="recepcion" data-lado="i">
     <svg class="d" style="--x:7;--y:7;--w:4.5;--h:6.5" aria-hidden="true"><use href="#corazon"/></svg>
     <svg class="d der" style="--x:33.5;--y:4;--w:20.5;--h:15.4" aria-hidden="true"><use href="#novios"/></svg>
-    <p class="l" style="--mt:24">Después, la celebración</p>
+    <p class="t" style="--mt:24">Después, lo celebramos en</p>
     <svg class="ic" style="--mt:3;--w:8.5;--h:8" aria-hidden="true"><use href="#i-brindis"/></svg>
-    <p class="l fuerte" style="--mt:1.5">Banquete</p>
-    <h2 class="s" style="--mt:2.8">Hábitat Sella</h2>
+    <h2 class="s" style="--mt:2">Hábitat Sella</h2>
     <p class="t" style="--mt:1.5">Calle Pilar Lorengar, 50830 Villanueva de Gállego, Zaragoza</p>
     <a class="btn" style="--mt:3" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=El%20H%C3%A1bitat%20Sella%2C%20Villanueva%20de%20G%C3%A1llego"><b>Cómo llegar</b></a>
   </section>
 
-  <section id="camino" data-lado="d">
-    <p class="l" style="--mt:10">De la iglesia a la fiesta</p>
-    <h2 class="s" style="--mt:2;line-height:6rem">El camino</h2>
-    <svg class="mapa" id="mapa" style="--mt:3" viewBox="0 0 400 300" role="img" aria-label="Mapa dibujado: el autobús sale de la iglesia de San Antonio de Padua, en Zaragoza, cruza el Ebro y sube junto al río Gállego hasta Hábitat Sella, en Villanueva de Gállego">
-      <defs>
-        <mask id="ruta-mascara" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="300">
-          <path id="ruta-revela" d="M205 230C207 214 210 204 216 194S232 172 240 158S252 128 256 114S264 92 270 86" stroke="#fff" stroke-width="12" fill="none" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="0"/>
-        </mask>
-      </defs>
-      <!-- Ríos -->
-      <path class="rio" d="M0 196C50 186 96 206 150 194S250 176 300 186S370 196 400 184"/>
-      <path class="rio" d="M0 208C50 198 96 218 150 206S250 188 300 198S370 208 400 196"/>
-      <path class="rio" d="M262 183C270 160 284 148 292 126S314 86 324 66S342 36 348 20"/>
-      <path class="rio" d="M276 182C284 160 296 150 304 128S324 90 334 70S352 40 360 24"/>
-      <text class="rotulo" x="34" y="190">Ebro</text>
-      <text class="rotulo" transform="translate(318 140) rotate(-62)">Gállego</text>
-      <!-- Norte -->
-      <path d="M30 62V30M30 30L25 40M30 30L35 40"/>
-      <text x="30" y="22" text-anchor="middle">N</text>
-      <!-- Zaragoza: el Pilar a la orilla del Ebro -->
-      <path d="M44 244H122M50 244V214H58V244M50 214L54 205L58 214M108 244V214H116V244M108 214L112 205L116 214M58 244V228H108V244"/>
-      <path d="M64 228C64 220 74 220 74 228M76 228C76 214 90 214 90 228M92 228C92 220 102 220 102 228M83 216V211"/>
-      <text class="script" x="84" y="272" text-anchor="middle">Zaragoza</text>
-      <!-- La iglesia -->
-      <path d="M192 262V242L205 232L218 242V262ZM201 262V254C201 250 209 250 209 254V262M218 262V222H227V262M218 222L222.5 213L227 222M222.5 213V206M219.5 209H225.5"/>
-      <text x="210" y="282" text-anchor="middle">CEREMONIA</text>
-      <!-- Hábitat Sella, en Villanueva de Gállego -->
-      <path d="M255 86V68L270 56L285 68V86ZM266 86V77H274V86M262 70H266M274 70H278"/>
-      <path d="M243 86V76M243 76C234 76 233 64 240 62C238 54 250 52 251 60C257 60 256 74 243 76Z"/>
-      <path d="M297 86V78M297 78C290 78 289 68 294 66C293 60 302 59 303 65C307 66 306 77 297 78Z"/>
-      <path d="M270 46C267 42 263 41 263.5 38C264 35.5 268 35.5 270 38.5C272 35.5 276 35.5 276.5 38C277 41 273 42 270 46Z"/>
-      <text x="270" y="104" text-anchor="middle">CELEBRACIÓN</text>
-      <text class="script" x="196" y="30" text-anchor="middle">Villanueva de Gállego</text>
-      <!-- Ruta del autobús -->
-      <path class="ruta" d="M205 230C207 214 210 204 216 194S232 172 240 158S252 128 256 114S264 92 270 86" mask="url(#ruta-mascara)"/>
-      <g class="bus" transform="translate(270 80)">
-        <path class="papel" d="M-14 4V-9C-14 -11 -13 -12 -11 -12H10C13 -12 14 -10 15 -6L16 4Z"/>
-        <path d="M-11 -9H-3V-4H-11ZM0 -9H8V-4H0Z" stroke-width="1.4"/>
-        <circle class="papel" cx="-7" cy="5" r="3"/><circle class="papel" cx="9" cy="5" r="3"/>
-      </g>
-    </svg>
-    <p class="t" style="--mt:2.4">Habrá autobús de ida y vuelta.<br>Márcalo cuando confirmes tu asistencia.</p>
+  <section id="dia" class="fija jornada" data-lado="d">
+    <div class="fijo">
+      <h2 class="s" style="line-height:6rem">Así será el día</h2>
+      <p class="t">Horario orientativo. Habrá autobús de ida y vuelta.</p>
+      <div class="lienzo" id="lienzo">
+      <svg class="mapa" id="mapa" viewBox="0 0 400 300" role="img" aria-label="Mapa dibujado: el autobús sale de la iglesia de San Antonio de Padua, en Zaragoza, cruza el Ebro y sube junto al río Gállego hasta Hábitat Sella, en Villanueva de Gállego">
+        <defs>
+          <mask id="ruta-mascara" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="300">
+            <path id="ruta-revela" d="M178 262C184 238 204 212 216 194S236 168 244 152S256 134 262 126" stroke="#fff" stroke-width="12" fill="none" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="0"/>
+          </mask>
+        </defs>
+        <!-- Ríos -->
+        <path class="rio" d="M0 196C50 186 96 206 150 194S250 176 300 186S370 196 400 184"/>
+        <path class="rio" d="M0 208C50 198 96 218 150 206S250 188 300 198S370 208 400 196"/>
+        <path class="rio" d="M262 183C270 160 284 148 292 126S314 86 324 66S342 36 348 20"/>
+        <path class="rio" d="M276 182C284 160 296 150 304 128S324 90 334 70S352 40 360 24"/>
+        <text class="rotulo" x="34" y="190">Ebro</text>
+        <text class="rotulo" transform="translate(318 140) rotate(-62)">Gállego</text>
+        <!-- Norte -->
+        <path d="M30 62V30M30 30L25 40M30 30L35 40"/>
+        <text x="30" y="22" text-anchor="middle">N</text>
+        <!-- Zaragoza: el Pilar a la orilla del Ebro -->
+        <path d="M44 244H122M50 244V214H58V244M50 214L54 205L58 214M108 244V214H116V244M108 214L112 205L116 214M58 244V228H108V244"/>
+        <path d="M64 228C64 220 74 220 74 228M76 228C76 214 90 214 90 228M92 228C92 220 102 220 102 228M83 216V211"/>
+        <text class="script" x="84" y="272" text-anchor="middle">Zaragoza</text>
+        <!-- La iglesia -->
+        <path d="M192 262V242L205 232L218 242V262ZM201 262V254C201 250 209 250 209 254V262M218 262V222H227V262M218 222L222.5 213L227 222M222.5 213V206M219.5 209H225.5"/>
+        <text x="210" y="282" text-anchor="middle">CEREMONIA</text>
+        <!-- Hábitat Sella, en Villanueva de Gállego -->
+        <path d="M255 86V68L270 56L285 68V86ZM266 86V77H274V86M262 70H266M274 70H278"/>
+        <path d="M243 86V76M243 76C234 76 233 64 240 62C238 54 250 52 251 60C257 60 256 74 243 76Z"/>
+        <path d="M297 86V78M297 78C290 78 289 68 294 66C293 60 302 59 303 65C307 66 306 77 297 78Z"/>
+        <path d="M270 46C267 42 263 41 263.5 38C264 35.5 268 35.5 270 38.5C272 35.5 276 35.5 276.5 38C277 41 273 42 270 46Z"/>
+        <text x="270" y="104" text-anchor="middle">CELEBRACIÓN</text>
+        <text class="script" x="196" y="30" text-anchor="middle">Villanueva de Gállego</text>
+        <!-- Ruta del autobús -->
+        <path class="ruta" d="M178 262C184 238 204 212 216 194S236 168 244 152S256 134 262 126" mask="url(#ruta-mascara)"/>
+        <g class="bus" transform="translate(178 256)">
+          <path class="papel" d="M-14 4V-9C-14 -11 -13 -12 -11 -12H10C13 -12 14 -10 15 -6L16 4Z"/>
+          <path d="M-11 -9H-3V-4H-11ZM0 -9H8V-4H0Z" stroke-width="1.4"/>
+          <circle class="papel" cx="-7" cy="5" r="3"/><circle class="papel" cx="9" cy="5" r="3"/>
+        </g>
+        <!-- Cielo: el sol baja con las horas y a medianoche sale la luna -->
+        <g class="sol" transform="translate(90 88)"><circle r="10"/><path d="M0 -16V-21M0 16V21M-16 0H-21M16 0H21M-11.5 -11.5L-15 -15M11.5 11.5L15 15M-11.5 11.5L-15 15M11.5 -11.5L15 -15" stroke-width="1.6"/></g>
+        <g class="luna" transform="translate(112 100)" style="opacity:0"><path d="M5 -13A13 13 0 1 0 13 7A10 10 0 1 1 5 -13Z"/><path d="M30 -12v6M27 -9h6M-26 4v5M-28.5 6.5h5M24 14v4M22 16h4" stroke-width="1.4"/></g>
+        <!-- Lo que pasa a cada hora -->
+        <g data-hora="1" transform="translate(248 240)"><path d="M-12 -6H-5L-3 -10H3L5 -6H12V9H-12Z"/><circle cx="0" cy="1.5" r="4.5"/></g>
+        <g data-hora="2"><svg x="198" y="46" width="32" height="30" viewBox="0 0 85 80"><use href="#i-brindis"/></svg></g>
+        <g data-hora="3" transform="translate(214 62)"><circle r="9"/><circle r="5"/><path d="M-16 -9V9M-18 -9V-3C-18 -1 -14 -1 -14 -3V-9M16 -9C13 -6 13 0 16 2V9"/></g>
+        <g data-hora="4" transform="translate(214 62)"><path d="M-6 6V-10L8 -13V3"/><circle cx="-9" cy="6" r="3"/><circle cx="5" cy="3" r="3"/></g>
+        <g data-hora="5" transform="translate(214 62)"><text class="script" x="0" y="8" text-anchor="middle">¿?</text><path d="M15 -13v6M12 -10h6M-17 -9v5M-19.5 -6.5h5" stroke-width="1.6"/></g>
+      </svg>
+      </div>
+      <p class="hora-actual" id="hora-actual" aria-hidden="true"><time id="hora-t">12:30</time><span id="hora-l">Salida del autobús</span></p>
+      <ol class="horas">
+        <li class="hora on"><time>12:30</time><span>Salida del autobús</span></li>
+        <li class="hora"><time>13:30</time><span>Fotos a la salida de la iglesia</span></li>
+        <li class="hora"><time>14:15</time><span>Cóctel</span></li>
+        <li class="hora"><time>16:00</time><span>Banquete</span></li>
+        <li class="hora"><time>18:30</time><span>Baile y fiesta</span></li>
+        <li class="hora"><time>¿?</time><span>Sorpresa</span></li>
+        <li class="hora"><time>00:00</time><span>Autobús de vuelta</span></li>
+      </ol>
+    </div>
   </section>
 
   <section id="vestimenta" data-lado="d">
@@ -835,26 +881,12 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
     <p class="t" style="--mt:2.4">Queremos veros guapísimos y elegantes.<br>Os recomendamos llevar calzado cómodo.</p>
   </section>
 
-  <section id="dia" data-lado="i">
-    <h2 class="s" style="--mt:10">Así será el día</h2>
-    <p class="t" style="--mt:1">Horario orientativo</p>
-    <ol class="crono" style="--mt:3.4">
-      <svg class="traza" viewBox="0 0 14 300" preserveAspectRatio="none" aria-hidden="true"><path d="M7 2C12 30 2 50 7 80S12 130 7 160S2 210 7 240S10 280 7 298"/></svg>
-      <li class="sube"><time>12:30</time><span class="t">Salida del autobús</span></li>
-      <li class="sube"><time>13:30</time><span class="t">Fotos a la salida de la iglesia</span></li>
-      <li class="sube"><time>14:15</time><span class="t">Cóctel</span></li>
-      <li class="sube"><time>16:00</time><span class="t">Banquete</span></li>
-      <li class="sube"><time>18:30</time><span class="t">Baile y fiesta</span></li>
-      <li class="sube"><time>¿?</time><span class="t">Sorpresa</span></li>
-      <li class="sube"><time>00:00</time><span class="t">Autobús de vuelta</span></li>
-    </ol>
-  </section>
 
   <section id="regalos" data-lado="i">
     <svg class="d" style="--x:37.5;--y:7;--w:16;--h:9.2" aria-hidden="true"><use href="#furgoneta"/></svg>
     <svg class="d" style="--x:8;--y:6;--w:4.5;--h:6.5" aria-hidden="true"><use href="#corazon"/></svg>
     <svg class="ic" style="--mt:16;--w:7.2;--h:7.2" aria-hidden="true"><use href="#i-regalo"/></svg>
-    <p class="l" style="--mt:2.2">Tu regalo será inolvidable</p>
+    <h2 class="s" style="--mt:2.2;font-size:5.6rem;line-height:6rem">Tu regalo será<br>inolvidable</h2>
     <p class="t" style="--mt:2">Tu compañía es lo más valioso para nosotros, pero si quieres ayudarnos a empezar esta nueva etapa, aquí te contamos cómo.</p>
     <p class="t fuerte" style="--mt:2.4">Número de cuenta<br><span id="iban">ES97 1583 0001 1091 0478 1503</span></p>
     <button class="btn" id="copiar-iban" type="button" style="--mt:1.8"><b>Copiar IBAN</b></button>
@@ -864,7 +896,7 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
     <svg class="d" style="--x:44;--y:3.5;--w:4.5;--h:6.5" aria-hidden="true"><use href="#corazon"/></svg>
     <svg class="d izq" style="--x:2;--y:4;--w:10;--h:13.8" aria-hidden="true"><use href="#mochila"/></svg>
     <svg class="ic" style="--mt:12;--w:7;--h:6" aria-hidden="true"><use href="#i-camara"/></svg>
-    <p class="l" style="--mt:2">Comparte tus</p>
+    <p class="t" style="--mt:2">Comparte tus</p>
     <h2 class="s" style="--mt:1;line-height:6rem">Fotos</h2>
     <p class="t" style="--mt:2">Sube aquí las fotos de nuestra boda para que todos podamos verlas</p>
     <!-- ponytail: subida de ejemplo, las fotos no salen del móvil hasta que exista el backend -->
@@ -1711,6 +1743,114 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
 
   construirHilo();
 
+  // Secciones fijas: la sección se queda en pantalla y el scroll mueve lo que pasa dentro
+  {
+    const quietas = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const lim = v => Math.min(1, Math.max(0, v));
+    const suave = v => v * v * (3 - 2 * v);
+    // De parada en parada: en cada una se queda un rato y entre medias avanza (sin movimiento, salta)
+    const tramo = (u, n) => {
+      const i = Math.min(n - 2, Math.max(0, Math.floor(u))), f = lim(u - i);
+      return { i, mov: quietas ? (f < .5 ? 0 : 1) : suave(lim((f - .3) / .4)), activo: f < .5 ? i : i + 1 };
+    };
+    const progreso = el => { const r = el.getBoundingClientRect(); return -r.top / Math.max(1, r.height - innerHeight); };
+    const fijas = [];
+
+    // Nuestra historia: una cámara recorre el paisaje de vuestra historia y lo va dibujando
+    const mundo = $('viaje-mundo');
+    mundo.querySelectorAll('use').forEach(u => {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.append(...document.querySelector(u.getAttribute('href')).cloneNode(true).children);
+      u.replaceWith(g);
+    });
+    mundo.querySelectorAll('path, circle').forEach(t => t.setAttribute('pathLength', 1));
+    const grupos = [...mundo.querySelectorAll('[data-centro]')];
+    const centros = grupos.map(g => g.dataset.centro.split(' ').map(Number));
+    const paradas = [...document.querySelectorAll('#historia .parada')];
+    const sendero = mundo.querySelector('.sendero');
+    fijas.push({ el: $('historia'), p: null, pintar(p) {
+      const n = centros.length, { i, mov, activo } = tramo(lim(p) * (n - 1), n);
+      const [ax, ay] = centros[i], [bx, by] = centros[i + 1];
+      // Entre parada y parada la cámara se aleja un poco, como un vuelo
+      const alto = 420 * (1 + .22 * Math.sin(Math.PI * mov));
+      const caja = mundo.getBoundingClientRect();
+      const ancho = alto * (caja.width || 4) / (caja.height || 3);
+      const cx = ax + (bx - ax) * mov, cy = ay + (by - ay) * mov;
+      mundo.setAttribute('viewBox', `${(cx - ancho / 2).toFixed(1)} ${(cy - alto / 2).toFixed(1)} ${ancho.toFixed(1)} ${alto.toFixed(1)}`);
+      const u = p * (n - 1);
+      grupos.forEach((g, k) => {
+        const d = quietas ? 1 : lim((u - k + 1.1) / .7);
+        if (g.trazo === d) return;
+        g.trazo = d;
+        g.querySelectorAll('path, circle').forEach(t => {
+          t.style.strokeDashoffset = 1 - d;
+          const relleno = t.getAttribute('fill');
+          if (relleno && relleno !== 'none') t.style.fillOpacity = d;
+        });
+      });
+      sendero.style.strokeDashoffset = quietas ? 0 : 1 - lim((i + mov) / (n - 1));
+      paradas.forEach((t, k) => t.classList.toggle('on', k === activo));
+    } });
+
+    // Así será el día: cada hora mueve el autobús, el sol baja y a medianoche es de noche
+    const mapa = $('mapa'), ruta = mapa.querySelector('.ruta'), largo = ruta.getTotalLength();
+    const bus = mapa.querySelector('.bus'), sol = mapa.querySelector('.sol'), luna = mapa.querySelector('.luna');
+    const iconos = [...mapa.querySelectorAll('[data-hora]')];
+    const horas = [...document.querySelectorAll('#dia .hora')];
+    let horaVista = 0;
+    fijas.push({ el: $('dia'), p: null, pintar(p) {
+      const n = horas.length, { i, mov, activo } = tramo(lim(p) * (n - 1), n);
+      const t = i + mov;
+      // Espera en la iglesia, va a Hábitat Sella para el cóctel y vuelve a medianoche
+      const ida = lim(t - 1), vuelta = lim(t - 5), pos = ida - vuelta;
+      $('ruta-revela').style.strokeDashoffset = 1 - ida;
+      const a = ruta.getPointAtLength(largo * pos);
+      bus.setAttribute('transform', `translate(${a.x.toFixed(1)} ${(a.y - 6).toFixed(1)})${vuelta > 0 && vuelta < 1 ? ' scale(-1 1)' : ''}`);
+      const s = lim(t / 5);
+      sol.setAttribute('transform', `translate(${(90 + 60 * s).toFixed(1)} ${(88 + 70 * s * s).toFixed(1)})`);
+      sol.style.opacity = 1 - lim((t - 4.4) / .5);
+      luna.style.opacity = lim((t - 4.7) / .5);
+      $('lienzo').classList.toggle('noche', t > 4.5);
+      iconos.forEach(g => g.classList.toggle('on', Number(g.dataset.hora) === activo));
+      horas.forEach((h, k) => h.classList.toggle('on', k === activo));
+      if (activo !== horaVista) {
+        horaVista = activo;
+        $('hora-t').textContent = horas[activo].querySelector('time').textContent;
+        $('hora-l').textContent = horas[activo].querySelector('span').textContent;
+        const c = $('hora-actual');
+        c.classList.remove('cambia');
+        void c.offsetWidth;
+        if (!quietas) c.classList.add('cambia');
+      }
+    } });
+
+    let pedido = false, ultimo = 0;
+    const pintarFijas = () => {
+      pedido = false;
+      ultimo = performance.now();
+      let sigue = false;
+      fijas.forEach(f => {
+        const objetivo = progreso(f.el);
+        if (f.p === null || quietas || Math.abs(objetivo - f.p) < .0004) f.p = objetivo;
+        else { f.p += (objetivo - f.p) * .16; sigue = true; }
+        if (f.p > -1.5 && f.p < 2.5) f.pintar(f.p);
+      });
+      if (sigue) pedirFijas();
+    };
+    const pedirFijas = () => { if (!pedido) { pedido = true; requestAnimationFrame(pintarFijas); } };
+    addEventListener('scroll', pedirFijas, { passive: true });
+    addEventListener('resize', () => { fijas.forEach(f => { f.p = null; }); pedirFijas(); });
+    // Si el navegador no dibuja fotogramas (pestaña oculta), lo fijo se coloca igualmente
+    setInterval(() => {
+      if (performance.now() - ultimo < 700) return;
+      fijas.forEach(f => {
+        const o = progreso(f.el);
+        if (Math.abs(o - f.p) > .0005) { f.p = o; f.pintar(o); }
+      });
+    }, 500);
+    fijas.forEach(f => { f.p = progreso(f.el); f.pintar(f.p); });
+  }
+
   // Construcción de la página: la portada se dibuja sola al entrar y el resto lo mueve el scroll,
   // hacia delante y hacia atrás. Los dibujos se trazan, lo manuscrito se escribe y el texto sube.
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1784,15 +1924,6 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
         item.el.style.opacity = p >= 1 ? '' : s;
         item.el.style.translate = p >= 1 ? '' : `0 ${(1 - s) * 1.4}rem`;
       },
-      // El autobús recorre el camino dibujado mientras el mapa pasa por la pantalla
-      ruta(item, p) {
-        item.revela.style.strokeDashoffset = 1 - p;
-        const L = item.largo * p;
-        const a = item.camino.getPointAtLength(L), b = item.camino.getPointAtLength(Math.min(item.largo, L + 2));
-        item.bus.setAttribute('transform', `translate(${a.x.toFixed(1)} ${(a.y - 6).toFixed(1)})${b.x < a.x - .05 ? ' scale(-1 1)' : ''}`);
-        item.bus.style.opacity = p > 0 ? '' : 0;
-        item.textos.forEach(t => { t.style.opacity = limitar(p * 4 - .3); });
-      },
       foto(item, p) {
         const s = suave(p);
         item.el.style.opacity = p >= 1 ? '' : s;
@@ -1807,20 +1938,19 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
 
     const mas = portada.querySelector('h1 > span');
     mas.remove();
-    main.querySelectorAll('svg.d, svg.ic, svg.traza').forEach(el => {
+    // Lo que está dentro de una sección fija lo mueve su propio código, no esta medición
+    const libre = el => !el.closest('.fijo');
+    [...main.querySelectorAll('svg.d, svg.ic, svg.traza')].filter(libre).forEach(el => {
       expandir(el);
       items.push({ el, tipo: 'dibujo', trazos: trazos(el) });
     });
-    main.querySelectorAll('.s, .n').forEach(el => dividir(el).forEach(linea => items.push({ el: linea, tipo: 'escrito' })));
+    [...main.querySelectorAll('.s, .n')].filter(libre).forEach(el => dividir(el).forEach(linea => items.push({ el: linea, tipo: 'escrito' })));
     portada.querySelector('h1').append(mas);
-    main.querySelectorAll('.t, .l').forEach(el => {
+    [...main.querySelectorAll('.t, .l')].filter(libre).forEach(el => {
       if (!el.closest('form') && !el.closest('li')) dividir(el).forEach(linea => items.push({ el: linea, tipo: 'sube' }));
     });
     main.querySelectorAll('section > .btn, .pie > .btn, #rsvp, #subida, .arco, .sube').forEach(el => items.push({ el, tipo: 'sube' }));
     items.push({ el: main.querySelector('.foto'), tipo: 'foto' });
-    const mapa = $('mapa'), camino = mapa.querySelector('.ruta');
-    items.push({ el: mapa, tipo: 'dibujo', trazos: trazos(mapa, [...mapa.querySelectorAll('path, circle')].filter(t => !t.closest('.bus, mask') && t !== camino)) });
-    items.push({ el: mapa, tipo: 'ruta', camino, largo: camino.getTotalLength(), revela: $('ruta-revela'), bus: mapa.querySelector('.bus'), textos: [...mapa.querySelectorAll('text')] });
     items.push({ el: mas, tipo: 'sube' });
 
     // Guion de la portada, en milisegundos desde que se abre
@@ -1871,7 +2001,6 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
         if (item.intro) return;
         const caja = item.el.getBoundingClientRect();
         const tramo = item.tipo === 'dibujo' ? Math.min(alto * .5, Math.max(alto * .26, caja.height * .9))
-          : item.tipo === 'ruta' ? alto * .7
           : item.tipo === 'foto' ? alto * .4
           : item.tipo === 'escrito' ? alto * .22 : alto * .14;
         item.fin = Math.min(caja.top + scrollY - alto * .95 + tramo, tope - 1);
