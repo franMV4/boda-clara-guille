@@ -132,9 +132,15 @@ section.fija { padding-bottom: 0; }
 .fijo { position: sticky; top: 0; display: flex; flex-direction: column; justify-content: center; gap: min(2.2rem, 2.4svh); box-sizing: border-box; height: 100vh; height: 100svh; padding: 3rem 3.5rem; overflow: hidden; }
 
 /* Nuestra historia: un paisaje dibujado que la cámara recorre */
-.mundo { display: block; flex: none; width: 100%; height: 46vh; height: 46svh; overflow: hidden; stroke-width: 2; }
-.sendero { stroke-dasharray: 1 1; }
-.sendero { stroke-width: 2.2; }
+.escenario { position: relative; flex: none; width: 100%; height: 46vh; height: 46svh; }
+.cuadro, .pasaje { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; stroke-width: 2; }
+.cuadro { opacity: 0; will-change: opacity, transform; }
+.pasaje { pointer-events: none; stroke-width: 1.8; }
+.pasaje path { stroke-dasharray: 1 1; stroke-dashoffset: 1.001; opacity: 0; }
+.viaje .paradas { order: 1; }
+.avance { position: relative; flex: none; width: min(62%, 30rem); height: 1px; margin: 0 auto; background: var(--borde); }
+.avance i { position: absolute; top: 0; left: 0; width: 14px; height: 13px; translate: -50% -50%; transition: left 900ms cubic-bezier(.77, 0, .175, 1); }
+.avance svg { display: block; width: 100%; height: 100%; fill: var(--tinta); stroke: none; }
 .paradas { display: grid; margin: 0; padding: 0; list-style: none; min-height: 15rem; }
 .parada { grid-area: 1 / 1; display: grid; gap: 1rem; align-content: start; opacity: 0; translate: 0 1.6rem; transition: opacity 420ms var(--sale), translate 520ms var(--sale); }
 .parada.on { opacity: 1; translate: 0 0; }
@@ -145,9 +151,8 @@ section.fija { padding-bottom: 0; }
 }
 
 /* Dibujos con vida: cada uno se mueve a su manera, solo mientras su sección está en pantalla */
-.mundo [data-centro] :is(path, circle):not(.extra *, .sin-trazo *) { stroke-dasharray: 1 1; }
-.mundo .guia, .mundo .papel-mundo { fill: var(--papel); }
-.mundo .guia path { fill: var(--tinta); stroke: none; }
+.cuadro :is(path, circle):not(.extra *, .sin-trazo *) { stroke-dasharray: 1 1; }
+.cuadro .papel-mundo { fill: var(--papel); }
 .estela { stroke-width: 1.4; stroke-dasharray: .012 .02; opacity: .55; }
 .cascada path { stroke-dasharray: .05 .03; }
 .humo { stroke-width: 1.3; stroke-dasharray: .12 .38; opacity: .45; }
@@ -161,30 +166,29 @@ section.fija { padding-bottom: 0; }
 .campana-b { transform-origin: 65px 84px; }
 .sonido { transform-origin: 0 50%; }
 @media (prefers-reduced-motion: no-preference) {
-  .vivo .llama { animation: llama .9s ease-in-out infinite alternate; }
-  .vivo .humo { animation: humo 3.2s linear infinite; }
-  .vivo .titila, .vivo .destello { animation: titila 2.2s ease-in-out infinite; }
-  .vivo .bandera { animation: bandera 1.1s ease-in-out infinite alternate; }
-  .vivo .ondas { animation: ondas 3s ease-in-out infinite alternate; }
-  .vivo .nube { animation: nube 14s ease-in-out infinite alternate; }
-  .vivo .pajaro { animation: pajaro .5s ease-in-out infinite alternate, deriva 9s ease-in-out infinite alternate; }
-  .vivo .radios { animation: gira 1.2s linear infinite; }
-  .vivo .viento { animation: viento .8s linear infinite; }
-  .vivo .dado { animation: dado 2.6s ease-in-out infinite; }
-  .vivo .ficha { animation: salta 1.3s ease-in-out infinite; }
-  .vivo .columpio { animation: columpio 3.4s ease-in-out infinite alternate; }
-  .vivo .hojas { animation: columpio 2.6s ease-in-out infinite alternate-reverse; }
-  .vivo .calor { animation: calor 2.4s ease-in-out infinite alternate; }
-  .vivo .cascada path { animation: cascada 1.4s linear infinite; }
-  .vivo .salpica { animation: salta 1.1s ease-in-out infinite; }
-  .vivo .late { animation: late 1.6s ease-in-out infinite; }
-  .vivo .sube-corazon { animation: sube 3.2s ease-out infinite; }
-  .vivo .anillo-a { animation: mece 3s ease-in-out infinite alternate; }
-  .vivo .anillo-b { animation: mece 3s ease-in-out infinite alternate-reverse; }
-  .vivo .campana { animation: campana 1.4s ease-in-out infinite alternate; }
-  .vivo .campana-b { animation-delay: -.7s; }
-  .vivo .sonido { animation: sonido 1.4s ease-out infinite; }
-  .vivo .nota-b { animation-delay: -.5s; }
+  .vivo .activa .llama { animation: llama .9s ease-in-out infinite alternate; }
+  .vivo .activa .humo { animation: humo 3.2s linear infinite; }
+  .vivo .activa .titila, .vivo .activa .destello { animation: titila 2.2s ease-in-out infinite; }
+  .vivo .activa .bandera { animation: bandera 1.1s ease-in-out infinite alternate; }
+  .vivo .activa .ondas { animation: ondas 3s ease-in-out infinite alternate; }
+  .vivo .activa .nube { animation: nube 14s ease-in-out infinite alternate; }
+  .vivo .activa .pajaro { animation: pajaro .5s ease-in-out infinite alternate, deriva 9s ease-in-out infinite alternate; }
+  .vivo .activa .radios { animation: gira 1.2s linear infinite; }
+  .vivo .activa .viento { animation: viento .8s linear infinite; }
+  .vivo .activa .dado { animation: dado 2.6s ease-in-out infinite; }
+  .vivo .activa .ficha { animation: salta 1.3s ease-in-out infinite; }
+  .vivo .activa .columpio { animation: columpio 3.4s ease-in-out infinite alternate; }
+  .vivo .activa .hojas { animation: columpio 2.6s ease-in-out infinite alternate-reverse; }
+  .vivo .activa .calor { animation: calor 2.4s ease-in-out infinite alternate; }
+  .vivo .activa .cascada path { animation: cascada 1.4s linear infinite; }
+  .vivo .activa .salpica { animation: salta 1.1s ease-in-out infinite; }
+  .vivo .activa .late { animation: late 1.6s ease-in-out infinite; }
+  .vivo .activa .sube-corazon { animation: sube 3.2s ease-out infinite; }
+  .vivo .activa .anillo-a { animation: mece 3s ease-in-out infinite alternate; }
+  .vivo .activa .anillo-b { animation: mece 3s ease-in-out infinite alternate-reverse; }
+  .vivo .activa .campana { animation: campana 1.4s ease-in-out infinite alternate; }
+  .vivo .activa .campana-b { animation-delay: -.7s; }
+  .vivo .activa .sonido { animation: sonido 1.4s ease-out infinite; }
   .parada.on .s { animation: escribe 1.1s cubic-bezier(.5, 0, .3, 1) both; }
   .parada.on .t { animation: entra-parada 700ms var(--sale) 350ms both; }
 }
@@ -375,7 +379,8 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
   .programa li { grid-template-columns: 1fr 12rem 1fr; min-height: 22rem; }
   .programa .dibujo-dia { width: 12rem; }
   .fijo { padding-inline: 8rem; }
-  .mundo { height: 52vh; height: 52svh; }
+  .escenario { height: 52vh; height: 52svh; }
+  .cuadro { stroke-width: 1.5; }
   .izq { --x: 0 !important; }
   .der { --x: 33 !important; }
 
@@ -839,9 +844,8 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
   <section id="historia" class="fija viaje" data-lado="i">
     <div class="fijo">
       <h2 class="s">Nuestra historia</h2>
-      <svg class="mundo" id="viaje-mundo" viewBox="20 138 460 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <path class="sendero" d="M40 470C140 470 160 470 250 470S600 368 730 366S1000 506 1150 506S1450 356 1595 356S1900 440 2075 440S2350 446 2490 446S2700 446 2820 440"/>
-        <g data-centro="250 348">
+      <div class="escenario">
+        <svg class="cuadro" viewBox="75 204 350 292" aria-hidden="true">
           <svg x="100" y="250" width="300" height="196" viewBox="0 0 230 150">
             <path d="M20 130C43 97 67 63 90 30C113 63 137 97 160 130"/>
             <path d="M90 62C84 90 80 110 78 130M90 62C96 90 100 110 104 130"/>
@@ -851,8 +855,8 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
             <g class="titila"><path d="M40 20v.5M150 14v.5M190 40v.5M120 8v.5"/></g>
             <g class="extra"><path class="humo" d="M199 76C193 64 205 56 199 44S205 26 199 14"/><path class="destello" d="M60 10v8M56 14h8"/><path class="destello" style="animation-delay:-1.1s" d="M170 18v6M167 21h6"/></g>
           </svg>
-        </g>
-        <g data-centro="730 231">
+        </svg>
+        <svg class="cuadro" viewBox="535 73 390 325" aria-hidden="true">
           <svg x="560" y="120" width="340" height="223" viewBox="0 0 320 210">
             <path d="M10 150C30 128 50 108 70 92C78 98 86 104 92 108C112 82 130 54 150 30C162 44 172 58 184 70C190 66 196 62 200 60C218 82 234 102 250 120C260 114 270 108 280 104C292 120 302 136 312 150"/>
             <path d="M131 54C136 60 140 64 142 66C146 60 148 58 151 55C155 61 158 65 161 68C165 63 168 60 172 58"/>
@@ -863,8 +867,9 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
             <g class="ondas"><path d="M110 172C120 170 130 170 140 172M180 176C192 174 204 174 214 176M146 184C154 183 162 183 170 184"/></g>
             <g class="extra"><g class="nube"><path d="M28 46C28 38 38 36 42 41C44 33 56 33 58 41C64 39 70 44 66 49H28Z"/></g><g class="nube" style="animation-delay:-7s"><path d="M230 26C230 20 238 18 241 22C243 16 252 16 253 22C258 21 262 25 259 29H230Z"/></g><g class="pajaro"><path d="M206 52C209 48 213 48 215 52C217 48 221 48 224 52"/></g><g class="pajaro" style="animation-delay:-.4s"><path d="M228 62C230 59 233 59 234 62C235 59 238 59 240 62"/></g><g class="vuela" opacity="0"><circle cy="-10" r="3"/><path d="M0 -7V3M0 3L-3 9M0 3L3 9M0 -3L-4 1M0 -3L4 1" stroke-width="1.6"/><animateMotion dur="11s" begin="0s" repeatCount="indefinite" path="M40 138C52 124 62 110 72 96C80 100 86 104 92 106C108 86 126 60 146 36"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.08;.86;1" dur="11s" begin="0s" repeatCount="indefinite"/></g><g class="vuela" opacity="0"><circle cy="-10" r="3"/><path d="M0 -7V3M0 3L-3 9M0 3L3 9M0 -3L-4 1M0 -3L4 1" stroke-width="1.6"/><animateMotion dur="11s" begin="1.1s" repeatCount="indefinite" path="M40 138C52 124 62 110 72 96C80 100 86 104 92 106C108 86 126 60 146 36"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.08;.86;1" dur="11s" begin="1.1s" repeatCount="indefinite"/></g></g>
           </svg>
-        </g>
-        <g data-centro="1150 394">
+        </svg>
+        <svg class="cuadro" viewBox="975 254 350 292" aria-hidden="true">
+          <path d="M985 492C1080 489 1200 494 1315 490"/>
           <svg x="1000" y="300" width="300" height="188" viewBox="0 0 240 150">
             <path d="M52 64C74 64 92 82 92 104C92 126 74 144 52 144C30 144 12 126 12 104C12 82 30 64 52 64Z"/>
             <path d="M188 64C210 64 228 82 228 104C228 126 210 144 188 144C166 144 148 126 148 104C148 82 166 64 188 64Z"/>
@@ -879,8 +884,8 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
             <g class="ficha"><path d="M60 26C56 26 55 21 58 19C55 19 52 17 54 15C56 13 58 14 60 15C60 10 66 10 66 15C68 14 70 13 72 15C74 17 71 19 68 19C71 21 70 26 66 26Z"/></g>
             <g class="extra"><g class="radios"><path d="M52 68V140M21 86L83 122M21 122L83 86"/></g><g class="radios"><path d="M188 68V140M157 86L219 122M157 122L219 86"/></g><path class="viento" d="M-26 84H2M-34 100H-2M-24 116H4"/></g>
           </svg>
-        </g>
-        <g data-centro="1600 262">
+        </svg>
+        <svg class="cuadro" viewBox="1370 54 470 392" aria-hidden="true">
           <svg x="1380" y="180" width="190" height="152" viewBox="0 0 200 160">
             <path d="M4 30C60 20 140 36 196 24"/>
             <g class="hojas"><path d="M150 30C160 14 176 14 184 22C176 30 160 32 150 30ZM40 24C34 10 22 8 14 14C20 24 30 28 40 24Z"/></g>
@@ -898,8 +903,8 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
             <g class="extra"><g class="rayos"><path d="M180 6V12M180 48V54M156 30H162M198 30H204M163 13L167 17M193 43L197 47M163 47L167 43M193 17L197 13"/></g><path class="calor" d="M24 110C32 106 40 114 48 110S64 106 72 110"/><path class="calor" style="animation-delay:-1s" d="M104 112C112 108 120 116 128 112S144 108 152 112"/></g>
           </svg>
           <g class="extra"><path class="estela" d="M1400 176C1480 76 1740 56 1836 150"/><g class="vuela" opacity="0"><path class="papel-mundo" d="M-14 0H9C14 0 14 4 9 4H-14ZM-3 0L-9 -11H-5L5 0M-3 4L-9 15H-5L5 4M-14 0L-17 -6H-13L-9 0" stroke-width="1.8"/><animateMotion dur="5.5s" repeatCount="indefinite" rotate="auto" path="M1400 176C1480 76 1740 56 1836 150"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.08;.88;1" dur="5.5s" repeatCount="indefinite"/></g></g>
-        </g>
-        <g data-centro="2075 290">
+        </svg>
+        <svg class="cuadro" viewBox="1890 138 370 308" aria-hidden="true">
           <svg x="1950" y="146" width="250" height="288" viewBox="0 0 260 300">
             <g class="sin-trazo cascada"><path d="M22 4C14 60 30 120 20 180C14 220 26 250 20 284M44 4C36 60 52 120 42 180C36 220 48 250 42 284M66 4C58 60 74 120 64 180C58 220 70 250 64 284"/></g>
             <g class="salpica"><path d="M8 284C20 274 32 292 44 282C56 292 68 276 80 288M14 298C26 292 40 300 54 294"/></g>
@@ -926,8 +931,8 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
             <g class="late"><path d="M142 112C137 106 131 103 132 98C133 93 139 93 142 98C145 93 151 93 152 98C153 103 147 106 142 112Z"/></g>
             <g class="extra"><g class="sube-corazon"><path transform="translate(142 104) scale(.5)" d="M0 6C-5 1 -10 -2 -9 -6C-8 -10 -2 -10 0 -5C2 -10 8 -10 9 -6C10 -2 5 1 0 6Z"/></g><g class="sube-corazon" style="animation-delay:-1.6s"><path transform="translate(150 108) scale(.4)" d="M0 6C-5 1 -10 -2 -9 -6C-8 -10 -2 -10 0 -5C2 -10 8 -10 9 -6C10 -2 5 1 0 6Z"/></g><path class="destello" d="M134 128v6M131 131h6M162 124v6M159 127h6"/></g>
           </svg>
-        </g>
-        <g data-centro="2470 300">
+        </svg>
+        <svg class="cuadro" viewBox="2265 142 380 317" aria-hidden="true">
           <svg x="2300" y="220" width="110" height="130" viewBox="0 0 110 130">
             <g class="late"><path d="M56 30C48 18 36 26 44 38C48 44 54 48 58 54C64 46 74 38 74 28C74 18 62 16 56 30Z"/></g>
             <g class="destello"><path d="M30 34H20M36 14L28 6M56 8V0M80 12L88 6M86 30H96"/></g>
@@ -949,9 +954,9 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
             <path d="M4 352C80 349 150 354 218 351"/>
             <g class="extra"><g class="campana"><path d="M45 84V88M40 100C40 91 50 91 50 100ZM44 103h2"/></g><g class="campana campana-b"><path d="M65 84V88M60 100C60 91 70 91 70 100ZM64 103h2"/></g><g class="sonido"><path d="M90 86C96 92 96 102 90 108M98 80C107 90 107 104 98 114"/></g><g class="sube-corazon"><path transform="translate(148 172) scale(.6)" d="M0 6C-5 1 -10 -2 -9 -6C-8 -10 -2 -10 0 -5C2 -10 8 -10 9 -6C10 -2 5 1 0 6Z"/></g><g class="sube-corazon" style="animation-delay:-2s"><path transform="translate(170 180) scale(.45)" d="M0 6C-5 1 -10 -2 -9 -6C-8 -10 -2 -10 0 -5C2 -10 8 -10 9 -6C10 -2 5 1 0 6Z"/></g></g>
           </svg>
-        </g>
-        <g class="guia" transform="translate(250 456)"><path d="M0 6C-5 1 -10 -2 -9 -6C-8 -10 -2 -10 0 -5C2 -10 8 -10 9 -6C10 -2 5 1 0 6Z"/></g>
-      </svg>
+        </svg>
+        <svg class="pasaje" viewBox="0 0 450 375" aria-hidden="true"><path d="M-30 236C40 196 110 262 190 222S320 176 380 214S450 236 480 226"/></svg>
+      </div>
       <ol class="paradas">
         <li class="parada on"><h3 class="s">Amanecer</h3><p class="t">Nos conocimos en Amanecer.</p></li>
         <li class="parada"><h3 class="s">La Gran Facha</h3><p class="t">Un buen sitio para nosotros es la cima de un pico con vistas a un ibón.</p></li>
@@ -960,6 +965,7 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
         <li class="parada"><h3 class="s">La pedida</h3><p class="t">Tenía que ser en una vía ferrata.</p></li>
         <li class="parada"><h3 class="s">26 de junio de 2027</h3><p class="t">Y ahora, el sí.</p></li>
       </ol>
+      <div class="avance" aria-hidden="true"><i><svg viewBox="-10 -11 20 18"><path d="M0 6C-5 1 -10 -2 -9 -6C-8 -10 -2 -10 0 -5C2 -10 8 -10 9 -6C10 -2 5 1 0 6Z"/></svg></i></div>
     </div>
   </section>
 
@@ -1903,47 +1909,54 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
     const progreso = el => { const r = el.getBoundingClientRect(); return -r.top / Math.max(1, r.height - innerHeight); };
     const fijas = [];
 
-    // Nuestra historia: una cámara recorre el paisaje de vuestra historia y lo va dibujando
-    const mundo = $('viaje-mundo');
-    mundo.querySelectorAll('use').forEach(u => {
-      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.append(...document.querySelector(u.getAttribute('href')).cloneNode(true).children);
-      u.replaceWith(g);
-    });
-    mundo.querySelectorAll('path, circle').forEach(t => t.setAttribute('pathLength', 1));
-    const grupos = [...mundo.querySelectorAll('[data-centro]')];
-    const centros = grupos.map(g => g.dataset.centro.split(' ').map(Number));
+    // Nuestra historia: escenas sueltas. La que se va se desdibuja, un hilo cruza y la siguiente se dibuja.
+    // Las transiciones van a su propio ritmo (no siguen al dedo), por eso siempre son suaves.
+    const cuadros = [...document.querySelectorAll('#historia .cuadro')];
+    cuadros.forEach(c => c.querySelectorAll('path, circle').forEach(t => t.setAttribute('pathLength', 1)));
+    const lineas = c => [...c.querySelectorAll('path, circle')].filter(t => !t.closest('.extra, .sin-trazo'));
+    const extras = c => [...c.querySelectorAll('.extra, .sin-trazo')];
+    const pasaje = document.querySelector('#historia .pasaje path');
+    pasaje.setAttribute('pathLength', 1);
     const paradas = [...document.querySelectorAll('#historia .parada')];
-    const sendero = mundo.querySelector('.sendero'), guia = mundo.querySelector('.guia');
-    const largoSendero = sendero.getTotalLength();
+    const avance = document.querySelector('#historia .avance i');
+    const MUEVE = 'cubic-bezier(.77, 0, .175, 1)', SALE = 'cubic-bezier(.23, 1, .32, 1)';
+    let escena = -1, historiaVista = false, enCurso = [];
+    const anima = (el, marcos, op) => { const a = el.animate(marcos, { fill: 'both', ...op }); enCurso.push(a); return a; };
+    const mostrarEscena = (k, atras) => {
+      enCurso.forEach(a => a.cancel());
+      enCurso = [];
+      const vieja = escena >= 0 && escena !== k ? cuadros[escena] : null, nueva = cuadros[k];
+      cuadros.forEach(c => c.classList.toggle('activa', c === nueva));
+      paradas.forEach((t, i) => t.classList.toggle('on', i === k));
+      avance.style.left = `${k / (cuadros.length - 1) * 100}%`;
+      escena = k;
+      if (quietas) {
+        cuadros.forEach(c => { c.style.opacity = c === nueva ? 1 : 0; });
+        extras(nueva).forEach(e => { e.style.opacity = 1; });
+        return;
+      }
+      const dir = atras ? -1 : 1;
+      let espera = 0;
+      if (vieja) {
+        // Cada trazo se recoge hacia su final, la escena sube un poco y se apaga
+        const ls = lineas(vieja), paso = Math.min(10, 180 / ls.length);
+        ls.forEach((t, i) => anima(t, [{ strokeDashoffset: 0 }, { strokeDashoffset: -1.001 }], { duration: 560, delay: i * paso, easing: MUEVE }));
+        extras(vieja).forEach(e => anima(e, [{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: 'ease-out' }));
+        anima(vieja, [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: `translateY(${-16 * dir}px)` }], { duration: 820, easing: MUEVE });
+        // El hilo cruza el escenario de lado a lado y se lleva la escena
+        anima(pasaje, [{ strokeDashoffset: 1.001, opacity: 0 }, { opacity: 1, offset: .08 }, { strokeDashoffset: 0, offset: .48 }, { opacity: 1, offset: .9 }, { strokeDashoffset: -1.001, opacity: 0 }], { duration: 1250, easing: MUEVE });
+        espera = 480;
+      }
+      // La nueva entra desde abajo (o desde arriba si se vuelve) y se dibuja trazo a trazo
+      const ls = lineas(nueva), paso = Math.min(32, 760 / ls.length);
+      anima(nueva, [{ opacity: 0, transform: `translateY(${16 * dir}px) scale(.985)` }, { opacity: 1, transform: 'none' }], { duration: 1000, delay: espera, easing: SALE });
+      ls.forEach((t, i) => anima(t, [{ strokeDashoffset: 1.001 }, { strokeDashoffset: 0 }], { duration: 950, delay: espera + i * paso, easing: SALE }));
+      extras(nueva).forEach(e => anima(e, [{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: espera + 900, easing: 'ease-out' }));
+    };
     fijas.push({ el: $('historia'), p: null, pintar(p) {
-      const n = centros.length, { i, mov, activo } = tramo(lim(p) * (n - 1), n);
-      const [ax, ay] = centros[i], [bx, by] = centros[i + 1];
-      // Entre parada y parada la cámara se aleja un poco, como un vuelo
-      const alto = 420 * (1 + .22 * Math.sin(Math.PI * mov));
-      const caja = mundo.getBoundingClientRect();
-      const ancho = alto * (caja.width || 4) / (caja.height || 3);
-      const cx = ax + (bx - ax) * mov, cy = ay + (by - ay) * mov;
-      mundo.setAttribute('viewBox', `${(cx - ancho / 2).toFixed(1)} ${(cy - alto / 2).toFixed(1)} ${ancho.toFixed(1)} ${alto.toFixed(1)}`);
-      const u = p * (n - 1);
-      grupos.forEach((g, k) => {
-        const d = quietas ? 1 : lim((u - k + 1.1) / .7);
-        if (g.trazo === d) return;
-        g.trazo = d;
-        g.querySelectorAll('path, circle').forEach(t => {
-          if (t.closest('.extra, .sin-trazo')) return;
-          t.style.strokeDashoffset = 1 - d;
-          const relleno = t.getAttribute('fill');
-          if (relleno && relleno !== 'none') t.style.fillOpacity = d;
-        });
-        // Lo que se mueve no se traza: aparece cuando el dibujo ya está hecho
-        g.querySelectorAll('.extra, .sin-trazo').forEach(e => { e.style.opacity = lim(d * 2 - 1); });
-      });
-      sendero.style.strokeDashoffset = quietas ? 0 : 1 - lim((i + mov) / (n - 1));
-      // Un corazón va por el camino delante de la cámara
-      const punto = sendero.getPointAtLength(largoSendero * lim((i + mov) / (n - 1)));
-      guia.setAttribute('transform', `translate(${punto.x.toFixed(1)} ${(punto.y - 14).toFixed(1)})`);
-      paradas.forEach((t, k) => t.classList.toggle('on', k === activo));
+      if (!historiaVista) return;
+      const n = cuadros.length, k = Math.min(n - 1, Math.max(0, Math.floor(p * n)));
+      if (k !== escena) mostrarEscena(k, k < escena);
     } });
 
     // Así será el día: el hilo baja por el centro y se anuda en cada momento; la punta lleva un corazón
@@ -1979,11 +1992,18 @@ html:has(#sobre:not([hidden])) { overflow: hidden; }
       } });
 
     // Los dibujos solo se mueven mientras su sección está en pantalla
-    if (quietas) mundo.pauseAnimations();
+    const pausar = si => cuadros.forEach(c => c[si ? 'pauseAnimations' : 'unpauseAnimations']());
+    pausar(true);
     new IntersectionObserver(entradas => entradas.forEach(e => {
       e.target.classList.toggle('vivo', e.isIntersecting && !quietas);
-      if (e.target.id === 'historia' && !quietas) mundo[e.isIntersecting ? 'unpauseAnimations' : 'pauseAnimations']();
-    })).observe($('historia'));
+      if (!quietas) pausar(!e.isIntersecting);
+      // La primera escena se dibuja al llegar a la sección, no antes
+      if (e.isIntersecting && !historiaVista) {
+        historiaVista = true;
+        const f = fijas[0];
+        f.pintar(f.p ?? progreso(f.el));
+      }
+    }, { rootMargin: '0px 0px -35% 0px' })).observe($('historia'));
 
     let pedido = false, ultimo = 0;
     const pintarFijas = () => {
